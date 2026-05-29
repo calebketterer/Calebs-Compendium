@@ -1,13 +1,13 @@
 import { Player, Enemy, Bullet, TrailSegment } from '../core/diep.interfaces';
 import { EnemyRegistry } from '../enemies/enemy.registry';
-import { DiepBackgroundRenderer } from './diep.background-renderer';
+import { DiepBackgroundRenderer } from './diep.grid-renderer';
 
 export class DiepWorldRenderer {
   /**
    * This is the NEW Master Render Call. 
    * It handles the correct layering (Ground -> World -> Walls -> Flying).
    */
-  public static renderWorld(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
+  public static renderWorld(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
     const tiles = g.arenaManager?.getAllTiles() || [];
     const tileSize = g.arenaManager?.tileSize || 50;
     const isArenaActive = g.arenaEnabled !== false;
@@ -23,11 +23,12 @@ export class DiepWorldRenderer {
     if (g.isGameStarted || g.gameOver) {
       this.drawToxicTrails(ctx, g.toxicTrails);
       
-      const visibleEnemies = g.getVisibleEnemies();
+      // FIXED: Call the function directly from the injected engine service reference instance
+      const visibleEnemies = g.deathAnimation.getVisibleEnemies(g.enemies);
       const groundEnemies = visibleEnemies.filter((e: any) => !e.isFlying);
       
-      this.drawEnemiesWithBars(ctx, groundEnemies, g.player, g.bullets);
-      this.drawPlayer(ctx, g.player, g.gameOver);
+      this.drawEnemiesWithBars(ctx, groundEnemies, player, g.bullets);
+      this.drawPlayer(ctx, player, g.gameOver);
       this.drawBullets(ctx, g.bullets);
     }
 
@@ -38,10 +39,10 @@ export class DiepWorldRenderer {
 
     // 4. Layer: Flying Entities (Drawn over walls)
     if (g.isGameStarted || g.gameOver) {
-      const visibleEnemies = g.getVisibleEnemies();
+      const visibleEnemies = g.deathAnimation.getVisibleEnemies(g.enemies);
       const flyingEnemies = visibleEnemies.filter((e: any) => e.isFlying);
       if (flyingEnemies.length > 0) {
-        this.drawEnemiesWithBars(ctx, flyingEnemies, g.player, g.bullets);
+        this.drawEnemiesWithBars(ctx, flyingEnemies, player, g.bullets);
       }
     }
   }

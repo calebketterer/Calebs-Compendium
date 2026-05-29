@@ -17,8 +17,9 @@ export class DiepUpgradeMenuRenderer {
     circle: 2.5
   };
 
-  public static draw(ctx: CanvasRenderingContext2D, g: any, height: number): void {
-    const player: Player = g.player;
+  public static draw(ctx: CanvasRenderingContext2D, g: any, player: Player, height: number): void {
+    if (!player) return;
+
     const startY = UpgradeMenuManager.getMenuStartY(height, this.ROW_HEIGHT, this.ROW_SPACING);
     const menuHeight = UPGRADE_REGISTRY.length * (this.ROW_HEIGHT + this.ROW_SPACING);
     
@@ -66,9 +67,8 @@ export class DiepUpgradeMenuRenderer {
     ctx.restore();
   }
 
-  public static getButtons(g: any, height: number): DiepButton[] {
-    const player: Player = g.player;
-    if (player.progression.upgradePoints <= 0 || UpgradeMenuManager.slideX < -280) return [];
+  public static getButtons(g: any, player: Player, height: number): DiepButton[] {
+    if (!player || player.progression.upgradePoints <= 0 || UpgradeMenuManager.slideX < -280) return [];
 
     const startY = UpgradeMenuManager.getMenuStartY(height, this.ROW_HEIGHT, this.ROW_SPACING);
 

@@ -3,7 +3,7 @@ import { DiepDynamicTitle } from './diep.dynamic-title';
 import { DiepTipsManager } from './diep.tips-manager';
 import { DiepSettingsManager } from './diep.arena-settings-manager';
 import { DiepArenaCheckboxRenderer } from './diep.arena-checkbox-renderer';
-import { DiepButtonRenderer } from '../diep.button-renderer';
+import { DiepButtonRenderer } from '../buttons/diep.button-renderer';
 
 export class DiepMainMenu {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -50,9 +50,9 @@ export class DiepMainMenu {
     const isActive = g.hazardDirector?.enabled === true;
 
     return [
-      { id: 'start-btn', label: 'START GAME', x: centerX - 100, y: centerY - 20, w: 200, h: 50, color: '#2ecc71', borderColor: '#27ae60', hoverEffect: 'grow', action: () => g.startGameWithFade() },
-      { id: 'quadrivium-btn', label: 'QUADRIVIUM', x: centerX - 100, y: centerY + 50, w: 200, h: 50, color: '#9b59b6', borderColor: '#7c4592', hoverEffect: 'grow', action: () => g.transition.fadeOut(() => g.showingQuadrivium = true) },
-      { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: centerX - 100, y: centerY + 120, w: 200, h: 50, color: '#f1c40f', borderColor: '#f39c12', hoverEffect: 'grow', action: () => g.transition.fadeOut(() => g.showingAchievements = true) },
+      { id: 'start-btn', label: 'START GAME', x: centerX - 100, y: centerY - 20, w: 200, h: 50, color: '#2ecc71', borderColor: '#27ae60', hoverEffect: 'grow', action: () => g.arenaReset.startNewGame(g) },
+      { id: 'quadrivium-btn', label: 'QUADRIVIUM', x: centerX - 100, y: centerY + 50, w: 200, h: 50, color: '#9b59b6', borderColor: '#7c4592', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingQuadrivium = true) },
+      { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: centerX - 100, y: centerY + 120, w: 200, h: 50, color: '#f1c40f', borderColor: '#f39c12', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingAchievements = true) },
       { id: 'arena-toggle-btn', label: '', x: centerX + 120, y: centerY - 15, w: 40, h: 40, color: '#1a1a1a', borderColor: isActive ? '#3498db' : '#444', action: () => DiepSettingsManager.toggleArena(g) }
     ];
   }

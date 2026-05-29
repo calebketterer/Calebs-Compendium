@@ -1,4 +1,4 @@
-import { DiepTimeManager } from '../core/diep.time-manager';
+import { DiepTimeManager } from '../../core/diep.time-manager';
 
 export class DiepButtonAnimator {
   /**

@@ -1,10 +1,14 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { DiepGameEngineService } from '../diep.game-engine.service';
 import { DiepAchievementToastRenderer } from '../../ui/hud/diep.achievement-toast';
+import { DiepPlayerService } from '../subsystems/diep.player.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepDebugService {
-  constructor(private gameEngine: DiepGameEngineService) {}
+  constructor(
+    private gameEngine: DiepGameEngineService,
+    private playerService: DiepPlayerService
+  ) {}
 
   public handleDebugInput(event: KeyboardEvent): boolean {
     if (!isDevMode()) return false;
@@ -27,7 +31,7 @@ export class DiepDebugService {
   }
 
   private toggleInvincibility() {
-    const p = this.gameEngine.player;
+    const p = this.playerService.player;
     if (!p) return;
 
     // Check if we are currently in god mode
@@ -49,7 +53,7 @@ export class DiepDebugService {
   }
 
   private applyUpgrades() {
-    const p = this.gameEngine.player;
+    const p = this.playerService.player;
     if (!p) return;
     
     p.progression.upgradePoints = 50;

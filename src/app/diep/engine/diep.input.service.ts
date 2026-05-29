@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
-import { DiepInteractionService } from '../ui/diep.interaction.service';
+import { DiepInteractionService } from '../ui/buttons/diep.button-interaction.service';
 import { DiepQuadriviumMenu } from '../ui/main-menu/quadrivium/diep.quadrivium-menu';
 import { DiepAchievementMenu } from '../ui/main-menu/achievements/diep.achievement-menu';
 import { DiepDynamicTitle } from '../ui/main-menu/diep.dynamic-title';
 import { DiepTipsManager } from '../ui/main-menu/diep.tips-manager';
+import { DiepProjectileService } from './subsystems/diep.projectile.service';
+import { DiepPlayerService } from './subsystems/diep.player.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,9 @@ import { DiepTipsManager } from '../ui/main-menu/diep.tips-manager';
 export class DiepInputService {
   constructor(
     private gameEngine: DiepGameEngineService,
-    private buttonHandler: DiepInteractionService
+    private buttonHandler: DiepInteractionService,
+    private projectileService: DiepProjectileService,
+    private playerService: DiepPlayerService
   ) {}
 
   public handleKeyDown(event: KeyboardEvent, drawCallback: () => void, gameLoopCallback: () => void) {
@@ -35,7 +39,9 @@ export class DiepInputService {
     }
 
     if ((key === 'k') && !this.gameEngine.mouseAiming) {
-      this.gameEngine.shootBullet();
+      const g = this.gameEngine;
+      const activePlayer = this.playerService.player;
+      this.projectileService.shootBullet(activePlayer, g.mousePos, g.mouseAiming, g.lastAngle, g.bullets);
       event.preventDefault();
     }
 
@@ -81,14 +87,14 @@ export class DiepInputService {
     // Dynamic Title Interaction Hook
     // We check if the game hasn't started (Main Menu) and if the click is in the upper title area
     if (!this.gameEngine.isGameStarted) {
-    // 1. Title check
-    if (mouseY < 250) {
-        DiepDynamicTitle.handleClick(event.detail === 2);
-    } 
-    
-    // 2. ADD THIS: Simple pass-through for the tips
-    DiepTipsManager.handleInteraction(mouseX, mouseY, canvas.width, canvas.height);
-}
+      // 1. Title check
+      if (mouseY < 250) {
+          DiepDynamicTitle.handleClick(event.detail === 2);
+      } 
+      
+      // 2. ADD THIS: Simple pass-through for the tips
+      DiepTipsManager.handleInteraction(mouseX, mouseY, canvas.width, canvas.height);
+    }
 
     // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
@@ -110,9 +116,10 @@ export class DiepInputService {
       canvas.focus();
     } else {
       const g = this.gameEngine;
+      const activePlayer = this.playerService.player;
       if (g.mouseAiming && event.button === 0 && !g.isPaused && !g.gameOver && g.isGameStarted) {
         g.mouseDown = true;
-        g.shootBullet();
+        this.projectileService.shootBullet(activePlayer, g.mousePos, g.mouseAiming, g.lastAngle, g.bullets);
       }
     }
   }

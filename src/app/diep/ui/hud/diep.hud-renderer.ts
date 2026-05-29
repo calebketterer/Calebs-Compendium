@@ -1,3 +1,4 @@
+import { Player } from '../../core/diep.interfaces';
 import { DiepXpBarRenderer } from './diep.xp-bar-renderer';
 import { DiepHealthBarRenderer } from './diep.health-bar-renderer';
 import { DiepUpgradeMenuRenderer } from './upgrade-menu/diep.upgrade-menu-renderer';
@@ -10,17 +11,19 @@ import { DiepAchievementToastRenderer } from './diep.achievement-toast';
  */
 export class DiepHudRenderer {
 
-  public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
+  public static draw(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
     // 1. Internal Visibility Check
     if (!g.isGameStarted) return;
 
-    const isOverlayActive = g.isPaused || (g.gameOver && g.deathAnimationTimeStart === null);
+    const isOverlayActive = g.isPaused || (g.gameOver && g.deathAnimation.deathAnimationTimeStart === null);
     const uiTextColor = isOverlayActive ? '#fff' : (g.isDarkMode ? '#ecf0f1' : '#333');
 
-    // 2. Draw Sub-modules (Bars and Menus)
-    DiepHealthBarRenderer.draw(ctx, g.player);
-    DiepXpBarRenderer.draw(ctx, g.player, width, height);
-    DiepUpgradeMenuRenderer.draw(ctx, g, height);
+    // 2. Draw Sub-modules (Bars and Menus) - Now safely using the injected player object
+    DiepHealthBarRenderer.draw(ctx, player);
+    DiepXpBarRenderer.draw(ctx, player, width, height);
+    
+    // FIXED: Passed all 4 expected parameters in the correct order
+    DiepUpgradeMenuRenderer.draw(ctx, g, player, height); 
     
     // 3. Draw Global Stats (Score/Wave/Notifs)
     this.drawSessionStats(ctx, g, width, uiTextColor);

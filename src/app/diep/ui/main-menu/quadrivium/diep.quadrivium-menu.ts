@@ -1,8 +1,8 @@
 import { EnemyRegistry } from '../../../enemies/enemy.registry';
 import { QuadriviumSorter } from './diep.quadrivium-sorter';
-import { QuadriviumEntryRenderer } from './quadrivium-entry.renderer';
+import { QuadriviumEntryRenderer } from './diep.quadrivium-entry.renderer';
 import { DiepButton } from '../../../core/diep.interfaces';
-import { DiepButtonRenderer } from '../../diep.button-renderer';
+import { DiepButtonRenderer } from '../../buttons/diep.button-renderer';
 
 export class DiepQuadriviumMenu {
   private static rotation = 0;
@@ -136,7 +136,7 @@ export class DiepQuadriviumMenu {
         x: width / 2 - 100, y: height - 100, w: 200, h: 50,
         color: '#e74c3c', borderColor: '#c0392b',
         hoverEffect: 'grow',
-        action: () => g.transition.fadeOut(() => g.showingQuadrivium = false)
+        action: () => g.arenaReset.transition.fadeOut(() => g.showingQuadrivium = false)
       }
     ];
   }

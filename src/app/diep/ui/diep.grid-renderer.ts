@@ -1,4 +1,4 @@
-import { ArenaTile, TileType } from '../engine/subsystems/diep.arena-manager';
+import { ArenaTile, TileType } from '../engine/subsystems/arena/arena.manager';
 
 export class DiepBackgroundRenderer {
   /**

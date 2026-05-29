@@ -1,6 +1,6 @@
-import { TileType } from '../../engine/subsystems/diep.arena-manager';
+import { TileType } from '../../engine/subsystems/arena/arena.manager';
 import { DiepButton } from '../../core/diep.interfaces';
-import { DiepButtonAnimator } from '../diep.button-animator';
+import { DiepButtonAnimator } from '../buttons/diep.button-animator';
 
 export class DiepArenaCheckboxRenderer {
   private static readonly WARNING_DURATION = 1500;

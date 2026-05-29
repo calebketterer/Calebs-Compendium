@@ -17,6 +17,8 @@ export class UpgradeMenuManager {
   // ---------------------------
 
   public static updateSlide(player: Player, menuWidth: number, isHovered: boolean, deltaTime: number): void {
+    if (!player || !player.progression) return;
+
     const points = player.progression.upgradePoints;
     const canStillUpgrade = UPGRADE_REGISTRY.some(path => (player.upgrades[path.id] || 0) < 10);
     const hasPoints = points > 0 && canStillUpgrade;

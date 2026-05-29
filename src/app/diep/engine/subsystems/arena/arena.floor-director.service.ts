@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { DiepArenaManager, TileType } from './diep.arena-manager';
-import { DiepWaveManagerService } from './diep.wave-manager';
+import { DiepArenaManager, TileType } from './arena.manager';
+import { DiepWaveManagerService } from './arena.wave-manager';
 
 type ArenaPattern = 'NONE' | 'CHAOS' | 'CENTER_PIT' | 'VERTICAL_STRIPES' | 'RANDOM_MAZE' | 'VOID_POCKETS';
 

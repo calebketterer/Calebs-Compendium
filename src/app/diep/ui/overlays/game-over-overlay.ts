@@ -1,6 +1,6 @@
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepHighScoreRenderer } from '../hud/diep.high-score-renderer';
-import { DiepButtonRenderer } from '../diep.button-renderer';
+import { DiepButtonRenderer } from '../buttons/diep.button-renderer';
 
 export class DiepGameOverOverlay {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -29,7 +29,7 @@ export class DiepGameOverOverlay {
         color: '#2ecc71', borderColor: '#27ae60',
         fontSize: 'bold 30px Inter, sans-serif',
         hoverEffect: 'grow',
-        action: () => g.restartGameWithFade()
+        action: () => g.arenaReset.restartGame(g)
       },
       {
         id: 'main-menu-gameover-btn',
@@ -37,7 +37,7 @@ export class DiepGameOverOverlay {
         x: width / 2 - 100, y: height / 2 + 80, w: 200, h: 50,
         color: '#34495e', borderColor: '#2c3e50',
         hoverEffect: 'grow',
-        action: () => g.returnToMainMenuWithFade()
+        action: () => g.arenaReset.exitToMenu(g)
       }
     ];
   }

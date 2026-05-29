@@ -1,4 +1,4 @@
-import { Enemy, Player } from '../core/diep.interfaces';
+import { Enemy, Player } from '../../core/diep.interfaces';
 
 export class HealerEnemy {
 

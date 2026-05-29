@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Player, PlayerProgression, DifficultyMode } from '../../../core/diep.interfaces';
+import { Player, PlayerProgression, DifficultyMode, Enemy } from '../../../core/diep.interfaces';
 import { UPGRADE_REGISTRY } from './diep.upgrade-registry';
 import { AchievementService } from '../../../core/diep.achievement.service';
 
@@ -9,6 +9,30 @@ export class DiepPlayerUpgradesService {
   private readonly XP_INCREMENT_PER_LEVEL = 50;
 
   constructor(private achievementService: AchievementService) {}
+
+  /**
+   * Processes all progression rewards, scoring, callbacks, and achievement mutations
+   * associated with a verified enemy kill.
+   */
+  public processKillRewards(engine: any, enemy: Enemy, player: Player): void {
+    // 1. Accumulate tracking stats directly on the engine instance
+    engine.score += enemy.scoreValue;
+    engine.sessionKills++;
+
+    // 2. Feed the internal progression metrics safely using the passed player reference
+    if (player && player.progression) {
+      this.addXp(player.progression, enemy.scoreValue);
+    }
+
+    // 3. Trigger individual enemy callbacks (like splitting or exploding)
+    enemy.onDeath?.(engine.enemies, engine.spawner, enemy, player);
+    enemy.health = 0;
+
+    // 4. Safely broadcast statistics to the achievement systems
+    const meta = (enemy as any).metadata || {};
+    this.achievementService.incrementKills(enemy.type, meta.faction, engine.sessionKills);
+    this.achievementService.updateProgress('SCORE', engine.score);
+  }
 
   public applyUpgrade(player: Player, upgradeId: string): void {
     const spent = player.upgrades[upgradeId] || 0;

@@ -5,8 +5,9 @@ import { DiepWorldRenderer } from './ui/diep.arena-renderer';
 import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
-import { DiepInteractionService } from './ui/diep.interaction.service';
+import { DiepInteractionService } from './ui/buttons/diep.button-interaction.service';
 import { DiepDebugService} from './engine/debug/diep.debug.service';
+import { DiepPlayerService } from './engine/subsystems/diep.player.service';
 
 @Component({
   selector: 'app-diep',
@@ -22,6 +23,7 @@ export class DiepComponent implements AfterViewInit {
 
   constructor(
     public gameEngine: DiepGameEngineService, 
+    public playerService: DiepPlayerService,
     private inputService: DiepInputService,
     private interactionService: DiepInteractionService,
     private debugService: DiepDebugService
@@ -32,7 +34,7 @@ export class DiepComponent implements AfterViewInit {
     this.canvasRef.nativeElement.focus(); 
     
     // Ensure the manager knows it should be fading in
-    this.gameEngine.transition.fadeIn();
+    this.gameEngine.arenaReset.transition.fadeIn();
 
     // Start the engine ticker and tell it how to draw
     this.gameEngine.startTicker(() => this.draw());
@@ -93,12 +95,13 @@ export class DiepComponent implements AfterViewInit {
     const ctx = this.ctx;
     const w = g.width;
     const h = g.height;
+    const player = this.playerService.player;
 
     // 1. Draw Game World (Ground, Enemies, Players, Walls)
-    DiepWorldRenderer.renderWorld(ctx, g, w, h);
+    DiepWorldRenderer.renderWorld(ctx, g, player, w, h);
 
     // 2. Draw HUD (Now manages its own internal start-check)
-    DiepHudRenderer.draw(ctx, g, w, h);
+    DiepHudRenderer.draw(ctx, g, player, w, h);
 
     // 3. Draw UI Layers (Menus, Overlays, Transitions)
     DiepMenus.renderUI(ctx, g, w, h);

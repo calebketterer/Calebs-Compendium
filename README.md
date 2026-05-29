@@ -119,6 +119,6 @@ If not already done, type `npm install -g angular-cli-ghpages` in terminal. Then
 When using a secondary account, commit under other creds by running `git config --global user.email calebketterer8@gmail.com`
 and `git config --global user.name calebketterer`
 
-## Command for Returning Tree (VSCODE Codespace/Linux)
+## Commands for Returning App Trees (VSCODE Codespace/Linux)
 
-If not already done, type `alias dieptreeapp='find src/app/diep -maxdepth 4 -not -path "*/.*" | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"'` in terminal and enter dieptreeapp whenever you wanna see the diep file tree.
+When you want to see the full app tree, type `npm run apptree` in terminal and enter `npm run diepapptree` whenever you wanna see the diep file tree. The exact scripts being run are found in package.json.

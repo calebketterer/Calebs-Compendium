@@ -61,7 +61,7 @@ export interface Bullet {
   isGhost?: boolean;
 }
 
-export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO' | 'FLOATER';
+export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO' | 'FLOATER' | 'MEDIC';
 
 export interface Enemy {
   id: string;
@@ -164,4 +164,8 @@ export interface Achievement {
   upgradeId?: string;
   faction?: 'Red' | 'Orange' | 'Yellow' | 'Green' | 'Blue' | 'Purple';
   isSingleGame?: boolean;
+}
+
+export interface GameSystem {
+  update(engine: any, tick: number, ms: number): void;
 }

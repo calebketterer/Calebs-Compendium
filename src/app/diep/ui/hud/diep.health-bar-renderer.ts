@@ -8,11 +8,19 @@ export class DiepHealthBarRenderer {
   private static showPercent: boolean = true;
 
   public static draw(ctx: CanvasRenderingContext2D, player: Player): void {
+    // Safety check if the player object structure hasn't loaded yet during state swaps
+    if (!player) return;
+
+    // Force health down to exactly zero if backend ticks dipped into a floating-point negative
+    const currentHealth = Math.max(0, player.health);
+
     const healthX = 20;
     const healthY = 20;
     const healthBarWidth = 200;
     const healthBarHeight = 20;
-    const healthRatio = player.health / player.maxHealth;
+    
+    // Clamp the ratio strictly between 0.0 and 1.0 to guarantee flawless UI rendering bounds
+    const healthRatio = Math.max(0, Math.min(1, currentHealth / player.maxHealth));
 
     // 1. Background/Border
     ctx.fillStyle = '#34495e';
@@ -31,7 +39,7 @@ export class DiepHealthBarRenderer {
 
     const healthText = this.showPercent 
       ? `PLAYER HEALTH: ${Math.ceil(healthRatio * 100)}%`
-      : `PLAYER HEALTH: ${Math.ceil(player.health)} / ${player.maxHealth}`;
+      : `PLAYER HEALTH: ${Math.ceil(currentHealth)} / ${player.maxHealth}`;
 
     ctx.fillText(healthText, healthX + 5, healthY + 14);
   }

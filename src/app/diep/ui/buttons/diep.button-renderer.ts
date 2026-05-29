@@ -1,4 +1,4 @@
-import { DiepButton } from '../core/diep.interfaces';
+import { DiepButton } from '../../core/diep.interfaces';
 import { DiepButtonAnimator } from './diep.button-animator';
 
 export class DiepButtonRenderer {

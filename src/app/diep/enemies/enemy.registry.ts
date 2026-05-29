@@ -7,13 +7,14 @@ import { RollerEnemy } from './red/roller.enemy';
 import { GunnerEnemy } from './green/gunner.enemy';
 import { MotherEnemy } from './purple/mother.enemy';
 import { MinionEnemy } from './purple/minion.enemy';
-import { HealerEnemy } from './healer.enemy';
+import { HealerEnemy } from './yellow/healer.enemy';
 import { HaunterEnemy } from './blue/haunter.enemy';
 import { BomberEnemy } from './orange/bomber.enemy';
 import { BlasterEnemy } from './orange/blaster.enemy';
 import { CasterEnemy } from './blue/caster.enemy';
 import { EchoEnemy } from './blue/echo.enemy';
 import { FloaterEnemy } from './green/floater.enemy';
+import { MedicEnemy }  from './yellow/medic.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -40,6 +41,7 @@ export class EnemyRegistry {
     'CASTER' : CasterEnemy,
     'ECHO' : EchoEnemy,
     'FLOATER' : FloaterEnemy,
+    'MEDIC' : MedicEnemy,
   };
 
   /**

@@ -20,13 +20,13 @@ export class DiepMenus {
         DiepMainMenu.draw(ctx, g, width, height);
       } else if (g.isPaused) {
         DiepPauseOverlay.draw(ctx, g, width, height);
-      } else if (g.gameOver && g.deathAnimationTimeStart === null) {
+      } else if (g.gameOver && g.deathAnimation.deathAnimationTimeStart === null) {
         DiepGameOverOverlay.draw(ctx, g, width, height);
       }
     }
 
-    if (g.transition) {
-      g.transition.draw(ctx, width, height);
+    if (g.arenaReset.transition) {
+      g.arenaReset.transition.draw(ctx, width, height);
     }
   }
 }

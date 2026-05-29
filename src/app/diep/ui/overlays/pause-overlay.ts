@@ -1,6 +1,6 @@
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepHighScoreRenderer } from '../hud/diep.high-score-renderer';
-import { DiepButtonRenderer } from '../diep.button-renderer';
+import { DiepButtonRenderer } from '../buttons/diep.button-renderer';
 
 export class DiepPauseOverlay {
   public static draw(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
@@ -32,7 +32,7 @@ export class DiepPauseOverlay {
         x: width / 2 - 100, y: height / 2 + 40, w: 200, h: 50,
         color: '#e74c3c', borderColor: '#c0392b',
         hoverEffect: 'grow',
-        action: () => g.returnToMainMenuWithFade()
+        action: () => g.arenaReset.exitToMenu(g)
       },
       {
         id: 'dark-mode-btn',

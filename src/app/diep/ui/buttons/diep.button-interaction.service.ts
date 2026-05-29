@@ -1,18 +1,22 @@
 import { Injectable } from '@angular/core';
-import { DiepGameEngineService } from '../engine/diep.game-engine.service';
-import { DiepButton } from '../core/diep.interfaces';
-import { DiepQuadriviumMenu } from './main-menu/quadrivium/diep.quadrivium-menu';
-import { DiepAchievementMenu } from './main-menu/achievements/diep.achievement-menu';
-import { DiepAchievementNavigator } from './main-menu/achievements/diep.achievement-nav-bar';
-import { DiepMainMenu } from './main-menu/diep.main-menu';
-import { DiepPauseOverlay } from './overlays/pause-overlay';
-import { DiepGameOverOverlay } from './overlays/game-over-overlay';
-import { DiepHealthBarRenderer } from './hud/diep.health-bar-renderer';
-import { DiepUpgradeMenuRenderer } from './hud/upgrade-menu/diep.upgrade-menu-renderer';
+import { DiepGameEngineService } from '../../engine/diep.game-engine.service';
+import { DiepButton } from '../../core/diep.interfaces';
+import { DiepQuadriviumMenu } from '../main-menu/quadrivium/diep.quadrivium-menu';
+import { DiepAchievementMenu } from '../main-menu/achievements/diep.achievement-menu';
+import { DiepAchievementNavigator } from '../main-menu/achievements/diep.achievement-nav-bar';
+import { DiepMainMenu } from '../main-menu/diep.main-menu';
+import { DiepPauseOverlay } from '../overlays/pause-overlay';
+import { DiepGameOverOverlay } from '../overlays/game-over-overlay';
+import { DiepHealthBarRenderer } from '../hud/diep.health-bar-renderer';
+import { DiepUpgradeMenuRenderer } from '../hud/upgrade-menu/diep.upgrade-menu-renderer';
+import { DiepPlayerService } from '../../engine/subsystems/diep.player.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepInteractionService {
-  constructor(private gameEngine: DiepGameEngineService) {}
+  constructor(
+    private gameEngine: DiepGameEngineService,
+    private playerService: DiepPlayerService
+  ) {}
 
   public handleMouseEvent(
     event: MouseEvent, 
@@ -25,6 +29,7 @@ export class DiepInteractionService {
     const mouseY = event.clientY - rect.top;
     const g = this.gameEngine;
     const { width, height } = g;
+    const player = this.playerService.player;
 
     if (g.isGameStarted && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements) {
       const dist = Math.sqrt(Math.pow(mouseX - width / 2, 2) + Math.pow(mouseY - 35, 2));
@@ -46,13 +51,13 @@ export class DiepInteractionService {
       activeButtons = DiepMainMenu.getButtons(g, width, height);
     } else if (g.isPaused) {
       activeButtons = DiepPauseOverlay.getButtons(g, width, height);
-    } else if (g.gameOver && g.deathAnimationTimeStart === null) {
+    } else if (g.gameOver && g.deathAnimation.deathAnimationTimeStart === null) {
       activeButtons = DiepGameOverOverlay.getButtons(g, width, height);
     }
 
     if (g.isGameStarted && !g.isPaused && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements) {
       activeButtons.push(DiepHealthBarRenderer.getButton());
-      const upgradeButtons = DiepUpgradeMenuRenderer.getButtons(g, height);
+      const upgradeButtons = DiepUpgradeMenuRenderer.getButtons(g, player, height);
       activeButtons.push(...upgradeButtons);
     }
 
