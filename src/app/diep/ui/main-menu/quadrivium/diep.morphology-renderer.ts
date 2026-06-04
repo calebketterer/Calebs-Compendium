@@ -1,12 +1,45 @@
+// src/app/diep/ui/main-menu/quadrivium/diep.morphology-renderer.ts
 import { EnemyRegistry } from '../../../enemies/enemy.registry';
 import { EnemyType } from '../../../core/diep.interfaces';
 
-export class QuadriviumEntryRenderer {
+export class DiepMorphologyRenderer {
+
+  public static getHeight(sortedTypes: EnemyType[]): number {
+    const colCount = 2;
+    const rowSpacing = 110;
+    const totalRows = Math.ceil(sortedTypes.length / colCount);
+    return totalRows * rowSpacing;
+  }
+
+  public static render(
+    ctx: CanvasRenderingContext2D,
+    sortedTypes: EnemyType[],
+    width: number,
+    height: number,
+    startY: number,
+    currentScrollOffset: number,
+    rotation: number
+  ): void {
+    const colCount = 2;
+    const rowSpacing = 110;
+    const colWidth = (width - 120) / colCount;
+
+    sortedTypes.forEach((type, index) => {
+      const col = index % colCount;
+      const row = Math.floor(index / colCount);
+      const x = 60 + (col * colWidth);
+      const y = 140 + currentScrollOffset + (row * rowSpacing);
+
+      if (y < startY - 150 || y > height + 150) return;
+      
+      this.drawEntry(ctx, type, x, y, colWidth - 20, rotation);
+    });
+  }
+
   public static drawEntry(ctx: CanvasRenderingContext2D, type: EnemyType, x: number, y: number, w: number, rotation: number): void {
     const meta = EnemyRegistry.getMetadata(type);
     const defaultStats = EnemyRegistry.getDefaultStats(type);
     
-    // Rotating Body Preview
     ctx.save();
     ctx.translate(x + 35, y);
     ctx.rotate(rotation);
@@ -17,7 +50,6 @@ export class QuadriviumEntryRenderer {
     try { EnemyRegistry.draw(ctx, dummy, {} as any, []); } catch (e) {}
     ctx.restore();
 
-    // Text Content
     ctx.textAlign = 'left';
     ctx.font = 'bold 20px Inter, sans-serif';
     ctx.fillStyle = '#ecf0f1';
@@ -27,7 +59,6 @@ export class QuadriviumEntryRenderer {
     ctx.fillStyle = this.getFactionColor(meta.faction);
     ctx.fillText(meta.faction.toUpperCase(), x + 85, y + 8);
 
-    // Multi-line Description
     ctx.font = '13px Inter, sans-serif';
     ctx.fillStyle = '#7f8c8d';
     

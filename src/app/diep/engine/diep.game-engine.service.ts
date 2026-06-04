@@ -1,3 +1,4 @@
+// src/app/diep/engine/diep.game-engine.service.ts
 import { Injectable } from '@angular/core';
 import { Bullet, Enemy, HighScore, TrailSegment, DifficultyMode, GameSystem } from '../core/diep.interfaces';
 import { DiepTimeManager } from '../core/diep.time-manager';
@@ -14,6 +15,7 @@ import { DiepPlayerUpgradesService } from './subsystems/player-upgrades/diep.pla
 import { AchievementService } from '../core/diep.achievement.service';
 import { HighScoresService } from '../core/diep.high-scores.service';
 import { EnemySpawnerService } from '../enemies/diep.enemy-spawner';
+import { DiepStatsService } from '../core/diep.stats.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -62,7 +64,8 @@ export class DiepGameEngineService {
         public arenaManager: DiepArenaManager,
         public hazardDirector: DiepFloorDirector,
         public arenaReset: DiepArenaResetService,
-        public deathAnimation: DiepDeathAnimationService
+        public deathAnimation: DiepDeathAnimationService,
+        public diepStatsService: DiepStatsService
     ) {
         this.playerService.initializePlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();
@@ -76,6 +79,9 @@ export class DiepGameEngineService {
             this.enemyService,
             this.deathAnimation
         ];
+
+        // Mirror service property to engine instance for easy menu rendering extraction
+        (this as any).diepStatsService = this.diepStatsService;
     }
 
     public startTicker(renderFn: () => void) {
@@ -102,16 +108,15 @@ export class DiepGameEngineService {
         
         this.arenaReset.updateTransition();
 
-        // 1. Process standard modular systems sequentially
         for (const system of this.systems) {
             system.update(this, F, DiepTimeManager.gameMs);
         }
 
-        // 2. Handle active game session step evaluations post-system ticks
         if (this.isGameStarted && !this.isPaused && !this.gameOver) {
             this.hazardDirector.update(DiepTimeManager.gameMs, this.width, this.height);
             this.waveManager.updateWaves(this.enemies, this.width, this.height);
             this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
+            this.diepStatsService.trackTime(DiepTimeManager.gameMs / 1000);
         }
     }
 

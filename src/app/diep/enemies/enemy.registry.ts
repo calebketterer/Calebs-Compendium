@@ -15,6 +15,7 @@ import { CasterEnemy } from './blue/caster.enemy';
 import { EchoEnemy } from './blue/echo.enemy';
 import { FloaterEnemy } from './green/floater.enemy';
 import { MedicEnemy }  from './yellow/medic.enemy';
+import { DetonatorEnemy } from './purple/detonator.enemy';
 
 /**
  * The EnemyRegistry acts as the central "Switchboard".
@@ -42,6 +43,7 @@ export class EnemyRegistry {
     'ECHO' : EchoEnemy,
     'FLOATER' : FloaterEnemy,
     'MEDIC' : MedicEnemy,
+    'DETONATOR' :DetonatorEnemy,
   };
 
   /**

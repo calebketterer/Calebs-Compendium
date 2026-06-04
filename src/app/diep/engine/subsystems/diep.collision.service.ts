@@ -1,16 +1,19 @@
+// src/app/diep/engine/subsystems/diep.collision.service.ts
 import { Injectable } from '@angular/core';
 import { Player, Bullet, Enemy, GameSystem } from '../../core/diep.interfaces';
 import { EnemySpawnerService } from '../../enemies/diep.enemy-spawner';
 import { DiepArenaManager, TileType } from './arena/arena.manager';
 import { DiepGameEngineService } from '../diep.game-engine.service';
 import { DiepPlayerService } from './diep.player.service';
+import { DiepStatsService } from '../../core/diep.stats.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepCollisionService implements GameSystem {
     constructor(
         private spawner: EnemySpawnerService,
         private arenaManager: DiepArenaManager,
-        private playerService: DiepPlayerService
+        private playerService: DiepPlayerService,
+        private diepStatsService: DiepStatsService
     ) {}
 
     /**
@@ -38,6 +41,7 @@ export class DiepCollisionService implements GameSystem {
 
         // Process combat/object colliders and mutate collections directly
         const col = this.handleCollisions(
+            engine,
             activePlayer, 
             engine.bullets, 
             engine.enemies, 
@@ -57,12 +61,18 @@ export class DiepCollisionService implements GameSystem {
     }
 
     public handleCollisions(
+        engine: DiepGameEngineService,
         player: Player,
         bullets: Bullet[],
         enemies: Enemy[],
         onKillEnemy: (enemy: Enemy) => void
     ) {
         this.handleBulletVsBullet(bullets);
+
+        // Lazily bridge wave manager telemetry backplane access via engine instantiation references
+        if (engine.waveManager && !(engine.waveManager as any).diepStatsService) {
+            (engine.waveManager as any).diepStatsService = this.diepStatsService;
+        }
 
         bullets.forEach(bullet => {
             if (bullet.ownerType !== 'PLAYER' || bullet.health <= 0) return;
@@ -72,10 +82,21 @@ export class DiepCollisionService implements GameSystem {
                 const combinedRadius = bullet.radius + enemy.radius;
 
                 if (dist < combinedRadius) {
-                    this.resolveHealthTrade(bullet, enemy);
+                    this.resolveHealthTrade(bullet, enemy, true);
+                    
+                    // Track that a player weapon projectile successfully hit a target
+                    this.diepStatsService.recordShotHit();
+
                     if (enemy.onHit) enemy.onHit(enemies, this.spawner, bullet);
                     if (enemy.health <= 0) {
                         if (enemy.onDeath) enemy.onDeath(enemies, this.spawner, enemy, player);
+                        
+                        // Increment session counter tracker on the core engine instance safely
+                        engine.sessionKills++;
+                        
+                        // Register telemetry matrix kill data (handles achievements dynamically downstream)
+                        this.diepStatsService.recordKill(enemy.type, enemy, engine.sessionKills);
+                        
                         onKillEnemy(enemy);
                     }
                     const angle = Math.atan2(bullet.y - enemy.y, bullet.x - enemy.x);
@@ -92,7 +113,7 @@ export class DiepCollisionService implements GameSystem {
             if (bullet.ownerType !== 'ENEMY' || bullet.health <= 0) return;
             const dist = this.getDist(bullet, player);
             if (dist < bullet.radius + player.radius) {
-                this.resolveHealthTrade(bullet, player);
+                this.resolveHealthTrade(bullet, player, false);
                 player.vx += bullet.dx * 0.01;
                 player.vy += bullet.dy * 0.01;
             }
@@ -103,9 +124,16 @@ export class DiepCollisionService implements GameSystem {
             const dist = this.getDist(player, enemy);
             const combinedRadius = enemy.radius + player.radius;
             if (dist < combinedRadius) {
-                this.resolveHealthTrade(player, enemy);
+                this.resolveHealthTrade(player, enemy, true);
                 if (enemy.health <= 0 && !enemy.isInvulnerable) {
                     if (enemy.onDeath) enemy.onDeath(enemies, this.spawner, enemy, player);
+                    
+                    // Increment session counter tracker on ram kill
+                    engine.sessionKills++;
+                    
+                    // Register telemetry matrix kill data for ram kills
+                    this.diepStatsService.recordKill(enemy.type, enemy.color || '', engine.sessionKills);
+                    
                     onKillEnemy(enemy);
                 }
                 this.applyOverlapPush(player, enemy, dist, combinedRadius, 0.4);
@@ -200,9 +228,18 @@ export class DiepCollisionService implements GameSystem {
         b.vy += Math.sin(angle) * overlap * strength * weightB;
     }
 
-    private resolveHealthTrade(a: any, b: any) {
+    private resolveHealthTrade(a: any, b: any, isPlayerSource: boolean = false) {
         const dmgToA = (b.damage || b.bodyDamage || 15);
         const dmgToB = (a.damage || a.bodyDamage || 15);
+        
+        // Track running cumulative damage dealt whenever the source object is a player weapon or player body
+        if (isPlayerSource && !b.isInvulnerable) {
+            const actualDamageApplied = Math.min(b.health, dmgToB);
+            if (actualDamageApplied > 0) {
+                this.diepStatsService.recordDamageDealt(actualDamageApplied);
+            }
+        }
+
         a.health -= dmgToA;
         if (!b.isInvulnerable) b.health -= dmgToB;
     }
@@ -213,7 +250,7 @@ export class DiepCollisionService implements GameSystem {
                 const b1 = bullets[i]; const b2 = bullets[j];
                 if (b1.ownerType === b2.ownerType || b1.health <= 0 || b2.health <= 0) continue;
                 if (this.getDist(b1, b2) < b1.radius + b2.radius) {
-                    this.resolveHealthTrade(b1, b2);
+                    this.resolveHealthTrade(b1, b2, false);
                 }
             }
         }

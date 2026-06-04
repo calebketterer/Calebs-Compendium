@@ -60,5 +60,10 @@ export class DiepArenaResetService {
         engine.topScores = engine.highScoresService.getHighScores();
         engine.arenaManager.init(engine.width, engine.height);
         engine.deathAnimation.reset();
+
+        // Safe telemetry registration when an active match sequence begins
+        if (startGameImmediately && engine.diepStatsService) {
+            engine.diepStatsService.recordGameStarted();
+        }
     }
 }

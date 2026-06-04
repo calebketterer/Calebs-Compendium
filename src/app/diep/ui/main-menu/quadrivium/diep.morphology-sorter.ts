@@ -1,7 +1,8 @@
+// src/app/diep/ui/main-menu/quadrivium/diep.morphology-sorter.ts
 import { EnemyRegistry } from '../../../enemies/enemy.registry';
 import { EnemyType } from '../../../core/diep.interfaces';
 
-export class QuadriviumSorter {
+export class DiepMorphologySorter {
   // Define the Priority of Factions (ROYGBIV)
   private static readonly FACTION_ORDER: Record<string, number> = {
     'Red': 1,
@@ -47,7 +48,6 @@ export class QuadriviumSorter {
     let score = 0;
     if (meta.name && !meta.name.includes('Unknown')) score += 1;
     if (meta.description && !meta.description.includes('Unknown')) score += 1;
-    // Could add a check here for 'hasDrawing' if I add that to metadata later
     return score;
   }
 }

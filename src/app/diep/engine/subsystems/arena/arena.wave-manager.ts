@@ -10,6 +10,9 @@ export class DiepWaveManagerService {
     public enemySpawnCount = 5;
     public isRegularWaveActive = false;
 
+    // Direct reference hook filled by modern DI context or engine pipelines dynamically if needed
+    private diepStatsService: any = null;
+
     constructor(private spawner: EnemySpawnerService) {}
 
     /**
@@ -39,6 +42,11 @@ export class DiepWaveManagerService {
     }
 
     private prepareNextWave() {
+        // Log peak completed wave before advancing the internal count parameters
+        if (this.diepStatsService) {
+            this.diepStatsService.recordWaveReached(this.waveCount);
+        }
+
         this.enemySpawnCount++;
         this.waveCount++;
         this.isRegularWaveActive = false;

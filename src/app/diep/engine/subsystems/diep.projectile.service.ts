@@ -1,8 +1,10 @@
+// src/app/diep/engine/subsystems/diep.projectile.service.ts
 import { Injectable } from '@angular/core';
 import { Bullet, TrailSegment, Player, GameSystem } from '../../core/diep.interfaces';
 import { DiepTimeManager } from '../../core/diep.time-manager';
 import { DiepGameEngineService } from '../diep.game-engine.service';
 import { DiepPlayerService } from './diep.player.service';
+import { DiepStatsService } from '../../core/diep.stats.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +12,10 @@ import { DiepPlayerService } from './diep.player.service';
 export class DiepProjectileService implements GameSystem {
     private shotTimer = 0;
 
-    constructor(private playerService: DiepPlayerService) {}
+    constructor(
+        private playerService: DiepPlayerService,
+        private diepStatsService: DiepStatsService
+    ) {}
 
     public update(engine: DiepGameEngineService, tick: number, ms: number): void {
         const activePlayer = this.playerService.player;
@@ -81,6 +86,9 @@ export class DiepProjectileService implements GameSystem {
             isFlying: true,
             isGhost: false,
         });
+
+        // Log the projectile execution telemetry
+        this.diepStatsService.recordShotFired();
     }
 
     public resetCooldown(): void {

@@ -1,3 +1,4 @@
+// src/app/diep/core/diep.high-scores.service.ts
 import { Injectable } from '@angular/core';
 import { HighScore } from './diep.interfaces';
 
@@ -5,69 +6,100 @@ import { HighScore } from './diep.interfaces';
   providedIn: 'root'
 })
 export class HighScoresService {
-  // Using localStorage for persistence
-  private readonly STORAGE_KEY = 'diepSpHighScores';
+  private readonly ALL_TIME_KEY = 'diepSpHighScores';
+  private readonly WEEKLY_KEY = 'diepSpWeeklyScores';
   private readonly MAX_SCORES = 10;
 
   /**
-   * Retrieves high scores from localStorage, parses, sorts, and limits to MAX_SCORES.
+   * Retrieves the all-time leaderboard list.
    */
   getHighScores(): HighScore[] {
-    try {
-      const json = localStorage.getItem(this.STORAGE_KEY);
-      if (!json) {
-        return [];
-      }
-      
-      // Parse the JSON array of HighScore objects
-      const scores: HighScore[] = JSON.parse(json);
+    return this.getStoredScores(this.ALL_TIME_KEY);
+  }
 
-      // Ensure they are sorted before returning
-      return this.sortScores(scores).slice(0, this.MAX_SCORES);
+  /**
+   * Retrieves the rolling 7-day leaderboard list, pre-filtered and cleaned.
+   */
+  getWeeklyScores(): HighScore[] {
+    const scores = this.getStoredScores(this.WEEKLY_KEY);
+    const cleaned = this.filterRecentScores(scores);
+    
+    // If expired rows were purged, write the pruned state back to storage immediately
+    if (cleaned.length !== scores.length) {
+      this.saveScores(this.WEEKLY_KEY, cleaned);
+    }
+    return cleaned;
+  }
+
+  /**
+   * Pushes a completed run score to both isolated tracking tracks.
+   * @param newScore The player's final score.
+   */
+  addHighScore(newScore: number): void {
+    if (newScore <= 0) return;
+
+    const newEntry: HighScore = {
+      score: newScore,
+      date: new Date().toISOString()
+    };
+
+    // 1. Process All-Time Standings
+    const allTimeScores = this.getHighScores();
+    allTimeScores.push(newEntry);
+    const topAllTime = this.sortScores(allTimeScores).slice(0, this.MAX_SCORES);
+    this.saveScores(this.ALL_TIME_KEY, topAllTime);
+
+    // 2. Process Date-Constrained Weekly Standings
+    const weeklyScores = this.getStoredScores(this.WEEKLY_KEY);
+    weeklyScores.push(newEntry);
+    const activeWeekly = this.filterRecentScores(weeklyScores);
+    const topWeekly = this.sortScores(activeWeekly).slice(0, this.MAX_SCORES);
+    this.saveScores(this.WEEKLY_KEY, topWeekly);
+  }
+
+  /**
+   * Helper to retrieve and parse data cleanly from LocalStorage.
+   */
+  private getStoredScores(key: string): HighScore[] {
+    try {
+      const json = localStorage.getItem(key);
+      return json ? JSON.parse(json) : [];
     } catch (e) {
-      console.error("Error reading or parsing high scores from localStorage:", e);
+      console.error(`Error reading high scores from key ${key}:`, e);
       return [];
     }
   }
 
   /**
-   * Adds a new score, updates the list, sorts it, and saves the top 5 back to localStorage.
-   * @param newScore The player's final score.
+   * Helper to write lists to disk.
    */
-  addHighScore(newScore: number): void {
-    if (newScore <= 0) return; // Only save positive scores
-
-    const currentScores = this.getHighScores();
-    
-    // Create new entry with current date/time
-    const newEntry: HighScore = {
-      score: newScore,
-      date: new Date().toISOString() // Store date as a standard ISO string
-    };
-
-    currentScores.push(newEntry);
-
-    // Sort the combined list and keep only the top 5 highest scores
-    const topScores = this.sortScores(currentScores).slice(0, this.MAX_SCORES);
-
-    // Save to localStorage
+  private saveScores(key: string, scores: HighScore[]): void {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(topScores));
+      localStorage.setItem(key, JSON.stringify(scores));
     } catch (e) {
-      console.error("Error saving high scores to localStorage:", e);
+      console.error(`Error saving high scores to key ${key}:`, e);
     }
   }
 
   /**
-   * Sorts scores by score (descending) and then date (oldest first for ties).
+   * Strips out any metrics logged past the rolling 7-day system boundary.
+   */
+  private filterRecentScores(scores: HighScore[]): HighScore[] {
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return scores.filter(row => {
+      const parsedTime = new Date(row.date).getTime();
+      return !isNaN(parsedTime) && parsedTime >= sevenDaysAgo;
+    });
+  }
+
+  /**
+   * Sorts scores by score value descending, breaking ties via chronological age.
    */
   private sortScores(scores: HighScore[]): HighScore[] {
     return scores.sort((a, b) => {
-      // Primary sort: Score (Descending: b - a)
       if (b.score !== a.score) {
         return b.score - a.score;
       }
-      // Secondary sort (tiebreaker): Date (Ascending: a - b, oldest score wins tie)
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
   }

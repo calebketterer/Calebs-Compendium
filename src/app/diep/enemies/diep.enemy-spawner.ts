@@ -13,10 +13,11 @@ const ENEMY_SPAWN_WEIGHTS: EnemySpawnWeight[] = [
     { type: 'HEALER', weight: 0.05 },
     { type: 'HAUNTER', weight: 0.05 },
     { type: 'BOMBER', weight: 0.05 },
-    { type: 'BLASTER', weight: 0.1 },
+    { type: 'BLASTER', weight: 0.05 },
     { type: 'CASTER', weight: 0.05 },
     { type: 'FLOATER', weight: 0.05 },
     { type: 'MEDIC', weight: 0.05 },
+    { type: 'DETONATOR', weight: 0.05 },
 ];
 
 @Injectable({

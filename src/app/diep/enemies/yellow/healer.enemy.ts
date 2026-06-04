@@ -5,7 +5,7 @@ export class HealerEnemy {
     public static metadata = {
         name: 'Healer',
         faction: 'Yellow',
-        description: 'A passive support unit that wanders the battlefield. Destroying it provides an immediate health boost to the player.'
+        description: 'A passive unit that wanders the battlefield provides a health boost on death.'
     };
 
     public static create(x: number, y: number): Partial<Enemy> {
