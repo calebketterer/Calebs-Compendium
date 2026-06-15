@@ -1,7 +1,37 @@
 // src/app/diep/ui/main-menu/collection/collection-header-renderer.ts
 import { DiepButton } from '../../../core/diep.interfaces';
+import { InventoryRenderer } from './inventory-renderer';
 
 export class CollectionHeaderRenderer {
+  private static lastClickedId: string | null = null;
+  private static lastClickTime: number = 0;
+  
+  // Persistent tracking array to lock visual positions (0, 1, 2)
+  private static visualSlots: (string | null)[] = [null, null, null];
+
+  /**
+   * Synchronizes our stable visual slots with the backend service state without collapsing positions.
+   */
+  private static syncVisualSlots(equippedIds: string[]): void {
+    // 1. Remove any item from visual slots that is no longer in the backend state
+    for (let i = 0; i < this.visualSlots.length; i++) {
+      const id = this.visualSlots[i];
+      if (id && !equippedIds.includes(id)) {
+        this.visualSlots[i] = null;
+      }
+    }
+
+    // 2. Place newly equipped items into the leftmost available visual slot box
+    for (const id of equippedIds) {
+      if (!this.visualSlots.includes(id)) {
+        const emptyIndex = this.visualSlots.indexOf(null);
+        if (emptyIndex !== -1) {
+          this.visualSlots[emptyIndex] = id;
+        }
+      }
+    }
+  }
+
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, buttons: DiepButton[]): void {
     if (!g.playerService?.player) {
       g.playerService.initializePlayer();
@@ -10,7 +40,10 @@ export class CollectionHeaderRenderer {
     const inv = player.inventory;
     const frame = g.frameCounter || 0;
 
-    // 1. Header Block - High-Boldness Left Aligned Styling
+    // Synchronize layout tracking with backend state before rendering
+    this.syncVisualSlots(inv.equippedIds || []);
+
+    // 1. Header Block - Left Aligned Styling
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.font = '900 32px Inter, sans-serif';
@@ -21,7 +54,7 @@ export class CollectionHeaderRenderer {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.fillText('Manage your discovered items, body modifications, and upgrade cards', 50, 85);
 
-    // 2. Right-Aligned Balance Currency Balance Indicator (Symbol only)
+    // 2. Right-Aligned Balance Currency Balance Indicator
     const pixelAmountText = `${inv.pixels}`;
     ctx.font = 'bold 16px Inter, sans-serif';
     const textW = ctx.measureText(pixelAmountText).width;
@@ -53,7 +86,7 @@ export class CollectionHeaderRenderer {
     ctx.fillRect(-6, -6, diamondSize, diamondSize);
     ctx.restore();
 
-    // 3. Render Three Empty "Equipped" Slots - Aligned perfectly with Currency Box
+    // 3. Render Three Fixed "Equipped" Slots
     const eqSlotSize = 38; 
     const eqGap = 10;
     const eqStartX = boxX - (eqSlotSize * 3) - (eqGap * 3) - 0; 
@@ -82,9 +115,9 @@ export class CollectionHeaderRenderer {
       ctx.fill();
       ctx.stroke();
 
-      // Render the item illustration if an item is equipped in this slot index
-      if (e < inv.equippedIds.length) {
-        const itemId = inv.equippedIds[e];
+      // Draw item from fixed tracking slot index
+      const itemId = this.visualSlots[e];
+      if (itemId) {
         const item = inv.slots.find((s: any) => s.id === itemId);
         if (item) {
           ctx.save();
@@ -110,8 +143,10 @@ export class CollectionHeaderRenderer {
     const eqStartY = 38;
 
     for (let e = 0; e < 3; e++) {
+      const currentButtonId = `equipped-slot-${e}`;
+
       list.push({
-        id: `equipped-slot-${e}`,
+        id: currentButtonId,
         label: '',
         x: eqStartX + e * (eqSlotSize + eqGap),
         y: eqStartY,
@@ -120,9 +155,26 @@ export class CollectionHeaderRenderer {
         color: 'transparent',
         borderColor: 'transparent',
         action: () => {
-          if (!inv || e >= inv.equippedIds.length) return;
-          const itemId = inv.equippedIds[e];
-          g.playerService.unequipItem(itemId);
+          if (!inv) return;
+          
+          const itemId = this.visualSlots[e];
+          if (!itemId) return;
+          
+          const now = Date.now();
+          const isDoubleClick = (this.lastClickedId === currentButtonId) && (now - this.lastClickTime < 300);
+          
+          this.lastClickedId = currentButtonId;
+          this.lastClickTime = now;
+
+          if (isDoubleClick) {
+            g.playerService.unequipItem(itemId);
+            this.visualSlots[e] = null; // Clear this specific box position immediately
+          } else {
+            const inventoryIndex = inv.slots.findIndex((s: any) => s.id === itemId);
+            if (inventoryIndex !== -1) {
+              InventoryRenderer.selectedIndex = inventoryIndex;
+            }
+          }
         }
       });
     }

@@ -3,7 +3,10 @@ import { DiepButton } from '../../../core/diep.interfaces';
 import { ItemPreviewRenderer } from './item-preview.renderer';
 
 export class InventoryRenderer {
-  private static selectedIndex: number = 0;
+  public static selectedIndex: number = 0;
+  
+  private static lastClickedId: string | null = null;
+  private static lastClickTime: number = 0;
 
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, height: number, gridStartY: number, buttons: DiepButton[]): void {
     const inv = g.playerService.player.inventory;
@@ -14,7 +17,6 @@ export class InventoryRenderer {
     const gap = 16;
     const columns = 4;
 
-    // Process items grid slots dynamically
     for (let i = 0; i < inv.maxSlots; i++) {
       const col = i % columns;
       const row = Math.floor(i / columns);
@@ -25,13 +27,11 @@ export class InventoryRenderer {
       const isSelected = i === this.selectedIndex;
       const item = isOccupied ? inv.slots[i] : null;
       
-      // Determine if this specific item instance is currently equipped
       const isEquipped = item ? inv.equippedIds.includes(item.id) : false;
 
       const slotButton = buttons.find(b => b.id === `slot-${i}`);
       const isHovered = slotButton && g.mouseX >= slotX && g.mouseX <= slotX + slotSize && g.mouseY >= slotY && g.mouseY <= slotY + slotSize;
 
-      // Outer Slot Frame Coloring
       if (isSelected) {
         ctx.fillStyle = '#1c2833';
         ctx.strokeStyle = '#3498db';
@@ -52,12 +52,10 @@ export class InventoryRenderer {
       ctx.stroke();
 
       if (item) {
-        // Draw Item Illustration
         ctx.save();
         item.drawIllustration(ctx, slotX, slotY, slotSize, frame);
         ctx.restore();
 
-        // Quantity Counter (Bottom Right)
         if (item.quantity > 1) {
           ctx.fillStyle = '#ffffff';
           ctx.font = 'bold 12px Inter, sans-serif';
@@ -65,20 +63,17 @@ export class InventoryRenderer {
           ctx.fillText(`x${item.quantity}`, slotX + slotSize - 10, slotY + slotSize - 10);
         }
 
-        // Equipped Badge Indicator (Top Right)
         if (isEquipped) {
           ctx.save();
           const badgeSize = 20;
           const badgeX = slotX + slotSize - badgeSize - 6;
           const badgeY = slotY + 6;
 
-          // Draw green backing circle
           ctx.fillStyle = '#2ecc71';
           ctx.beginPath();
           ctx.arc(badgeX + badgeSize / 2, badgeY + badgeSize / 2, badgeSize / 2, 0, Math.PI * 2);
           ctx.fill();
 
-          // Draw white checkmark icon vector
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2.5;
           ctx.lineCap = 'round';
@@ -93,7 +88,6 @@ export class InventoryRenderer {
       }
     }
 
-    // Calculate dimensions for Inspection Right-Side Info Overlay Box Layout
     const panelX = gridStartX + columns * (slotSize + gap) + 20;
     const panelY = gridStartY;
     const panelW = width - panelX - 50;
@@ -101,7 +95,6 @@ export class InventoryRenderer {
 
     const selectedItem = this.selectedIndex < inv.slots.length ? inv.slots[this.selectedIndex] : null;
 
-    // Delegate inspection sub-panel rendering to isolated module handler
     ItemPreviewRenderer.render(ctx, selectedItem, panelX, panelY, panelW, panelH, inv);
   }
 
@@ -117,8 +110,10 @@ export class InventoryRenderer {
     for (let i = 0; i < maxSlots; i++) {
       const col = i % columns;
       const row = Math.floor(i / columns);
+      const currentButtonId = `slot-${i}`;
+
       list.push({
-        id: `slot-${i}`,
+        id: currentButtonId,
         label: '',
         x: gridStartX + col * (slotSize + gap),
         y: gridStartY + row * (slotSize + gap),
@@ -126,7 +121,28 @@ export class InventoryRenderer {
         h: slotSize,
         color: 'transparent',
         borderColor: 'transparent',
-        action: () => { this.selectedIndex = i; }
+        action: () => {
+          if (!inv) return;
+          
+          const now = Date.now();
+          const isDoubleClick = (this.lastClickedId === currentButtonId) && (now - this.lastClickTime < 300);
+          
+          this.lastClickedId = currentButtonId;
+          this.lastClickTime = now;
+
+          this.selectedIndex = i;
+
+          if (isDoubleClick && i < inv.slots.length) {
+            const item = inv.slots[i];
+            const isEquipped = inv.equippedIds.includes(item.id);
+
+            if (isEquipped) {
+              g.playerService.unequipItem(item.id);
+            } else if (inv.equippedIds.length < 3) {
+              g.playerService.equipItem(item.id);
+            }
+          }
+        }
       });
     }
 
