@@ -34,14 +34,6 @@ export class DiepPauseOverlay {
         hoverEffect: 'grow',
         action: () => g.arenaReset.exitToMenu(g)
       },
-      {
-        id: 'dark-mode-btn',
-        label: g.isDarkMode ? 'LIGHT MODE' : 'DARK MODE',
-        x: width / 2 - 100, y: height / 2 + 110, w: 200, h: 40,
-        color: '#95a5a6', borderColor: '#7f8c8d',
-        hoverEffect: 'grow',
-        action: () => g.toggleDarkMode()
-      }
     ];
   }
 }

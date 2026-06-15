@@ -9,7 +9,7 @@ export interface LifetimeStats {
   shotsHit: number;
   upgradesSpent: number;
   gamesPlayed: number;       // Tracks total game loops initiated
-  wavesConquered: number;    // High-water mark for peak wave reached
+  wavesConquered: number;    // Running total of waves completed across all games
   damageDealt: number;       // Running total of damage inflicted across all runs
   factionKills: Record<string, number>;
 }
@@ -120,11 +120,11 @@ export class DiepStatsService {
   }
 
   /**
-   * Updates peak wave milestone achieved if value exceeds the current high record.
+   * Accumulates waves successfully completed over time.
    */
-  public recordWaveReached(wave: number): void {
-    if (wave > this.stats.wavesConquered) {
-      this.stats.wavesConquered = wave;
+  public recordWaveConquered(count: number = 1): void {
+    if (count > 0 && !isNaN(count)) {
+      this.stats.wavesConquered += count;
       this.save();
     }
   }

@@ -14,7 +14,7 @@ export class DiepQuadriviumNavigator {
   public static maskAlpha = 0; // Outward opacity value used by the renderer mask
   
   private static transitionTime = 0; // Continuous step time
-  private static duration = 30;       // Total frames for full dip-to-black sequence
+  private static duration = 2;       // Total frames for full dip-to-black sequence
   private static pendingTabIndex = 0;
 
   public static drawTabs(ctx: CanvasRenderingContext2D, width: number): void {

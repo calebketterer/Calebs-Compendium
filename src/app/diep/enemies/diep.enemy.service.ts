@@ -3,7 +3,7 @@ import { Enemy, Player, Bullet, EnemyType, GameSystem } from '../core/diep.inter
 import { DiepEnemyLogic } from './diep.enemy-logic';
 import { DiepPhysics } from '../core/diep.physics';
 import { DiepGameEngineService } from '../engine/diep.game-engine.service';
-import { DiepPlayerService } from '../engine/subsystems/diep.player.service';
+import { DiepPlayerService } from '../engine/subsystems/player/diep.player.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepEnemyService implements GameSystem {

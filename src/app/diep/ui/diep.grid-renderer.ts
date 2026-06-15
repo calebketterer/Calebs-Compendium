@@ -1,3 +1,4 @@
+// src/app/diep/ui/diep.grid-renderer.ts
 import { ArenaTile, TileType } from '../engine/subsystems/arena/arena.manager';
 
 export class DiepBackgroundRenderer {
@@ -36,9 +37,8 @@ export class DiepBackgroundRenderer {
       const screenX = tile.x * tileSize;
       const screenY = tile.y * tileSize;
       
-      // Use type casting to prevent TS build errors on enum overlaps
-      const target = tile.targetType as any;
-      const current = tile.type as any;
+      const target = tile.targetType;
+      const current = tile.type;
 
       // --- BLINKING WARNING PHASE ---
       if (target === TileType.HOLE && current !== TileType.HOLE) {
@@ -52,9 +52,9 @@ export class DiepBackgroundRenderer {
       }
 
       // --- HOLE RENDERING ---
-      if (current === TileType.HOLE || (target === TileType.HOLE)) {
-        // Don't draw the actual hole depth until the warning is over and transition starts
-        if (tile.transition <= 0 && current !== TileType.HOLE) return;
+      if (current === TileType.HOLE || target === TileType.HOLE) {
+        // Skip drawing the dark hole void panel if we are still warning
+        if (current !== TileType.HOLE && tile.transition <= 0) return;
 
         const t = tile.transition;
 
@@ -95,14 +95,16 @@ export class DiepBackgroundRenderer {
    */
   public static drawWalls(ctx: CanvasRenderingContext2D, tileSize: number, tiles: ArenaTile[]): void {
     tiles.forEach(tile => {
-      const target = tile.targetType as any;
-      const current = tile.type as any;
+      const target = tile.targetType;
+      const current = tile.type;
 
-      if ((current === TileType.WALL || target === TileType.WALL) && tile.transition > 0) {
-        
+      if (current === TileType.WALL || target === TileType.WALL) {
         const screenX = tile.x * tileSize;
         const screenY = tile.y * tileSize;
         const t = tile.transition;
+
+        // Ensure we have a transition layout value to render
+        if (t <= 0 && current !== TileType.WALL) return;
 
         ctx.save();
         

@@ -81,7 +81,7 @@ export class AchievementCardRenderer {
     ctx.textAlign = 'left';
     ctx.font = 'bold 18px Inter, sans-serif';
     ctx.fillStyle = isUnlocked ? '#fff' : '#7f8c8d';
-    const tierLabel = ach.tier ? ` TIER ${ach.tier}` : '';
+    const tierLabel = ach.tier ? ` ${ach.tier}` : '';
     ctx.fillText((ach.name + tierLabel).toUpperCase(), x + 75, y - 10);
 
     ctx.textAlign = 'right';

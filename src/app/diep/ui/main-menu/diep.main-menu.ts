@@ -1,3 +1,4 @@
+// src/app/diep/ui/main-menu/diep.main-menu.ts
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepDynamicTitle } from './diep.dynamic-title';
 import { DiepTipsManager } from './diep.tips-manager';
@@ -22,7 +23,7 @@ export class DiepMainMenu {
     const isArenaEnabled = g.hazardDirector?.enabled === true;
 
     buttons.forEach((btn) => {
-      // The Renderer handles the hover check and animator logic internally
+      // The Renderer handles the hover check, animator logic, and text label execution internally
       DiepButtonRenderer.draw(ctx, btn, g);
       
       if (btn.id === 'arena-toggle-btn') {
@@ -50,9 +51,12 @@ export class DiepMainMenu {
     const isActive = g.hazardDirector?.enabled === true;
 
     return [
-      { id: 'start-btn', label: 'START GAME', x: centerX - 100, y: centerY - 20, w: 200, h: 50, color: '#2ecc71', borderColor: '#27ae60', hoverEffect: 'grow', action: () => g.arenaReset.startNewGame(g) },
+      // Primary Vertical Column Actions
+      { id: 'start-btn', label: 'START GAME', x: centerX - 100, y: centerY - 20, w: 200, h: 50, color: '#2ecc71', borderColor: '#27ae60', hoverEffect: 'grow', action: () => { g.currentMode = 'ARENA'; g.arenaReset.startNewGame(g); } },
       { id: 'quadrivium-btn', label: 'QUADRIVIUM', x: centerX - 100, y: centerY + 50, w: 200, h: 50, color: '#9b59b6', borderColor: '#7c4592', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingQuadrivium = true) },
       { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: centerX - 100, y: centerY + 120, w: 200, h: 50, color: '#f1c40f', borderColor: '#f39c12', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingAchievements = true) },
+      { id: 'shop-btn', label: 'M', x: centerX - 165, y: centerY + 120, w: 50, h: 50, color: '#1abc9c', borderColor: '#16a085', hoverEffect: 'grow', action: () => g.enterShopMode() },
+      { id: 'collection-btn', label: 'C', x: centerX + 115, y: centerY + 120, w: 50, h: 50, color: '#3498db', borderColor: '#2980b9', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingCollection = true) },
       { id: 'arena-toggle-btn', label: '', x: centerX + 120, y: centerY - 15, w: 40, h: 40, color: '#1a1a1a', borderColor: isActive ? '#3498db' : '#444', action: () => DiepSettingsManager.toggleArena(g) }
     ];
   }

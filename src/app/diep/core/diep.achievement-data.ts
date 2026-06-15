@@ -22,17 +22,34 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
 
     // --- COLOR SERIES ---
     { id: 'f_red_1', groupId: 'f_red', groupTag: 'Color', tier: 1, name: 'Code Red', description: 'Defeat 50 red shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 5 },
-    { id: 'f_red_2', groupId: 'f_red', groupTag: 'Color', tier: 2, name: 'Code Red', description: 'Defeat 500 red shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 20 },
+    { id: 'f_red_2', groupId: 'f_red', groupTag: 'Color', tier: 2, name: 'Code Red', description: 'Defeat 250 red shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 10 },
+    { id: 'f_red_3', groupId: 'f_red', groupTag: 'Color', tier: 3, name: 'Code Red', description: 'Defeat 1000 red shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 20 },
+    { id: 'f_red_4', groupId: 'f_red', groupTag: 'Color', tier: 4, name: 'Code Red', description: 'Defeat 10000 red shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Red', weight: 40 },
+
     { id: 'f_orange_1', groupId: 'f_orange', groupTag: 'Color', tier: 1, name: 'Juiced', description: 'Defeat 50 orange shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 5 },
-    { id: 'f_orange_2', groupId: 'f_orange', groupTag: 'Color', tier: 2, name: 'Juiced', description: 'Defeat 500 orange shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 20 },
+    { id: 'f_orange_2', groupId: 'f_orange', groupTag: 'Color', tier: 2, name: 'Juiced', description: 'Defeat 250 orange shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 10 },
+    { id: 'f_orange_3', groupId: 'f_orange', groupTag: 'Color', tier: 3, name: 'Juiced', description: 'Defeat 1000 orange shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 20 },
+    { id: 'f_orange_4', groupId: 'f_orange', groupTag: 'Color', tier: 4, name: 'Juiced', description: 'Defeat 10000 orange shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Orange', weight: 40 },
+
     { id: 'f_yellow_1', groupId: 'f_yellow', groupTag: 'Color', tier: 1, name: 'Enemies?', description: 'Defeat 50 yellow shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 5 },   
-    { id: 'f_yellow_2', groupId: 'f_yellow', groupTag: 'Color', tier: 2, name: 'Enemies?', description: 'Defeat 500 yellow shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 20 },
+    { id: 'f_yellow_2', groupId: 'f_yellow', groupTag: 'Color', tier: 2, name: 'Enemies?', description: 'Defeat 250 yellow shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 10 },
+    { id: 'f_yellow_3', groupId: 'f_yellow', groupTag: 'Color', tier: 3, name: 'Enemies?', description: 'Defeat 1000 yellow shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 20 },   
+    { id: 'f_yellow_4', groupId: 'f_yellow', groupTag: 'Color', tier: 4, name: 'Enemies?', description: 'Defeat 10000 yellow shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Yellow', weight: 40 },
+
     { id: 'f_green_1', groupId: 'f_green', groupTag: 'Color', tier: 1, name: 'Defoliator', description: 'Defeat 50 green shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 5 },
-    { id: 'f_green_2', groupId: 'f_green', groupTag: 'Color', tier: 2, name: 'Defoliator', description: 'Defeat 500 green shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 20 },
+    { id: 'f_green_2', groupId: 'f_green', groupTag: 'Color', tier: 2, name: 'Defoliator', description: 'Defeat 250 green shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 10 },
+    { id: 'f_green_3', groupId: 'f_green', groupTag: 'Color', tier: 3, name: 'Defoliator', description: 'Defeat 1000 green shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 20 },
+    { id: 'f_green_4', groupId: 'f_green', groupTag: 'Color', tier: 4, name: 'Defoliator', description: 'Defeat 10000 green shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Green', weight: 40 },
+
     { id: 'f_blue_1', groupId: 'f_blue', groupTag: 'Color', tier: 1, name: 'Deep Blue', description: 'Defeat 50 blue shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 5 },
-    { id: 'f_blue_2', groupId: 'f_blue', groupTag: 'Color', tier: 2, name: 'Deep Blue', description: 'Defeat 500 blue shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 20 },
+    { id: 'f_blue_2', groupId: 'f_blue', groupTag: 'Color', tier: 2, name: 'Deep Blue', description: 'Defeat 250 blue shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 10 },
+    { id: 'f_blue_1', groupId: 'f_blue', groupTag: 'Color', tier: 3, name: 'Deep Blue', description: 'Defeat 1000 blue shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 20 },
+    { id: 'f_blue_2', groupId: 'f_blue', groupTag: 'Color', tier: 4, name: 'Deep Blue', description: 'Defeat 10000 blue shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Blue', weight: 40 },
+
     { id: 'f_purple_1', groupId: 'f_purple', groupTag: 'Color', tier: 1, name: 'Purple Haze', description: 'Defeat 50 purple shapes', targetValue: 50, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 5 },
-    { id: 'f_purple_2', groupId: 'f_purple', groupTag: 'Color', tier: 2, name: 'Purple Haze', description: 'Defeat 500 purple shapes', targetValue: 500, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 },
+    { id: 'f_purple_2', groupId: 'f_purple', groupTag: 'Color', tier: 2, name: 'Purple Haze', description: 'Defeat 250 purple shapes', targetValue: 250, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 10 },
+    { id: 'f_purple_3', groupId: 'f_purple', groupTag: 'Color', tier: 3, name: 'Purple Haze', description: 'Defeat 1000 purple shapes', targetValue: 1000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 20 },
+    { id: 'f_purple_4', groupId: 'f_purple', groupTag: 'Color', tier: 4, name: 'Purple Haze', description: 'Defeat 10000 purple shapes', targetValue: 10000, currentValue: 0, isUnlocked: false, type: 'KILL', faction: 'Purple', weight: 40 },
 
     // --- UPGRADES SERIES ---
     { id: 'up_regen', groupTag: 'Upgrades', name: 'Wolverine', description: 'Max out Health Regen', targetValue: 10, currentValue: 0, isUnlocked: false, type: 'UPGRADE', weight: 10, upgradeId: 'healthRegen' },

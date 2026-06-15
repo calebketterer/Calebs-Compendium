@@ -1,8 +1,11 @@
+// src/app/diep/ui/diep.menus-manager.ts
 import { DiepQuadriviumMenu } from './main-menu/quadrivium/diep.quadrivium-menu';
 import { DiepAchievementMenu } from './main-menu/achievements/diep.achievement-menu';
+import { DiepCollectionMenu } from './main-menu/collection/collection-menu';
 import { DiepMainMenu } from './main-menu/diep.main-menu';
 import { DiepPauseOverlay } from './overlays/pause-overlay';
 import { DiepGameOverOverlay } from './overlays/game-over-overlay';
+import { DiepShopOverlay } from './overlays/shop-overlay';
 
 export class DiepMenus {
   /**
@@ -15,13 +18,17 @@ export class DiepMenus {
       DiepQuadriviumMenu.render(ctx, g, width, height);
     } else if (g.showingAchievements) {
       DiepAchievementMenu.render(ctx, g, width, height);
+    } else if (g.showingCollection) {
+      DiepCollectionMenu.render(ctx, g, width, height);
     } else {
       if (!g.isGameStarted) {
         DiepMainMenu.draw(ctx, g, width, height);
       } else if (g.isPaused) {
         DiepPauseOverlay.draw(ctx, g, width, height);
-      } else if (g.gameOver && g.deathAnimation.deathAnimationTimeStart === null) {
+      } else if (g.gameOver && !g.gameOverService.isAnimationActive()) {
         DiepGameOverOverlay.draw(ctx, g, width, height);
+      } else if (g.currentMode === 'SHOP') {
+        DiepShopOverlay.draw(ctx, g, width, height);
       }
     }
 

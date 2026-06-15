@@ -1,3 +1,4 @@
+// src/app/diep/engine/diep.input.service.ts
 import { Injectable } from '@angular/core';
 import { DiepGameEngineService } from './diep.game-engine.service';
 import { DiepInteractionService } from '../ui/buttons/diep.button-interaction.service';
@@ -6,7 +7,8 @@ import { DiepAchievementMenu } from '../ui/main-menu/achievements/diep.achieveme
 import { DiepDynamicTitle } from '../ui/main-menu/diep.dynamic-title';
 import { DiepTipsManager } from '../ui/main-menu/diep.tips-manager';
 import { DiepProjectileService } from './subsystems/diep.projectile.service';
-import { DiepPlayerService } from './subsystems/diep.player.service';
+import { DiepPlayerService } from './subsystems/player/diep.player.service';
+import { DiepWeaponController } from './subsystems/player/diep.weapon-controller';
 
 @Injectable({
   providedIn: 'root'
@@ -16,20 +18,26 @@ export class DiepInputService {
     private gameEngine: DiepGameEngineService,
     private buttonHandler: DiepInteractionService,
     private projectileService: DiepProjectileService,
-    private playerService: DiepPlayerService
+    private playerService: DiepPlayerService,
+    private weaponController: DiepWeaponController
   ) {}
 
   public handleKeyDown(event: KeyboardEvent, drawCallback: () => void, gameLoopCallback: () => void) {
     const key = event.key.toLowerCase();
     this.gameEngine.keys[key] = true;
 
-    // Prevent browser scroll when navigating sub-menus
-    if (this.gameEngine.showingQuadrivium || this.gameEngine.showingAchievements) {
-      if (['arrowup', 'arrowdown', 'w', 's', ' '].includes(key)) {
+    // Block standard scrolling browser actions when inside active engine sandboxes
+    if (
+      this.gameEngine.showingQuadrivium || 
+      this.gameEngine.showingAchievements || 
+      this.gameEngine.currentMode === 'SHOP'
+    ) {
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', ' '].includes(key)) {
         event.preventDefault();
       }
     }
 
+    // Fixed: Allowed global pause triggering for both ARENA and SHOP play loops cleanly
     if (key === 'p' || key === ' ') {
       const wasPaused = this.gameEngine.togglePause();
       drawCallback();
@@ -39,9 +47,6 @@ export class DiepInputService {
     }
 
     if ((key === 'k') && !this.gameEngine.mouseAiming) {
-      const g = this.gameEngine;
-      const activePlayer = this.playerService.player;
-      this.projectileService.shootBullet(activePlayer, g.mousePos, g.mouseAiming, g.lastAngle, g.bullets);
       event.preventDefault();
     }
 
@@ -60,7 +65,6 @@ export class DiepInputService {
     this.gameEngine.mousePos.x = mouseX;
     this.gameEngine.mousePos.y = mouseY;
 
-    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputMove(mouseY);
     } else if (this.gameEngine.showingAchievements) {
@@ -78,32 +82,24 @@ export class DiepInputService {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
 
-    // 1. Boundary Check
     if (event.clientX < rect.left || event.clientX > rect.right ||
         event.clientY < rect.top || event.clientY > rect.bottom) {
       return;
     }
 
-    // Dynamic Title Interaction Hook
-    // We check if the game hasn't started (Main Menu) and if the click is in the upper title area
-    if (!this.gameEngine.isGameStarted) {
-      // 1. Title check
+    if (this.gameEngine.currentMode === 'MENU' && !this.gameEngine.isGameStarted) {
       if (mouseY < 250) {
           DiepDynamicTitle.handleClick(event.detail === 2);
       } 
-      
-      // 2. ADD THIS: Simple pass-through for the tips
       DiepTipsManager.handleInteraction(mouseX, mouseY, canvas.width, canvas.height);
     }
 
-    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputDown(mouseY);
     } else if (this.gameEngine.showingAchievements) {
       DiepAchievementMenu.handleInputDown(mouseY);
     }
 
-    // 2. UI Interception
     const wasButtonClicked = this.buttonHandler.handleMouseEvent(
       event, 
       canvas, 
@@ -111,21 +107,23 @@ export class DiepInputService {
       drawCallback
     );
 
-    // 3. Gameplay Logic
     if (wasButtonClicked) {
       canvas.focus();
     } else {
       const g = this.gameEngine;
-      const activePlayer = this.playerService.player;
-      if (g.mouseAiming && event.button === 0 && !g.isPaused && !g.gameOver && g.isGameStarted) {
+      if (
+        g.mouseAiming && 
+        event.button === 0 && 
+        !g.isPaused && 
+        !g.gameOver && 
+        g.isGameStarted
+      ) {
         g.mouseDown = true;
-        this.projectileService.shootBullet(activePlayer, g.mousePos, g.mouseAiming, g.lastAngle, g.bullets);
       }
     }
   }
 
   public handleMouseUp(event: MouseEvent) {
-    // Scroll Hooks
     if (this.gameEngine.showingQuadrivium) {
       DiepQuadriviumMenu.handleInputUp();
     } else if (this.gameEngine.showingAchievements) {

@@ -4,18 +4,19 @@ import { Bullet, Enemy, HighScore, TrailSegment, DifficultyMode, GameSystem } fr
 import { DiepTimeManager } from '../core/diep.time-manager';
 import { DiepProjectileService } from './subsystems/diep.projectile.service';
 import { DiepCollisionService } from './subsystems/diep.collision.service';
-import { DiepPlayerService } from './subsystems/diep.player.service';
+import { DiepPlayerService } from './subsystems/player/diep.player.service';
 import { DiepEnemyService } from '../enemies/diep.enemy.service';
 import { DiepWaveManagerService } from './subsystems/arena/arena.wave-manager';
 import { DiepArenaManager } from './subsystems/arena/arena.manager';
 import { DiepFloorDirector } from './subsystems/arena/arena.floor-director.service';
-import { DiepDeathAnimationService } from './subsystems/diep.death-animation.service';
+import { DiepGameOverService } from './subsystems/diep.game-over.service';
 import { DiepArenaResetService } from './subsystems/arena/arena.reset';
-import { DiepPlayerUpgradesService } from './subsystems/player-upgrades/diep.player-upgrades.service';
+import { DiepPlayerUpgradesService } from './subsystems/player/player-upgrades/diep.player-upgrades.service';
 import { AchievementService } from '../core/diep.achievement.service';
 import { HighScoresService } from '../core/diep.high-scores.service';
 import { EnemySpawnerService } from '../enemies/diep.enemy-spawner';
 import { DiepStatsService } from '../core/diep.stats.service';
+import { DiepShopManagerService } from './subsystems/shop/shop.manager';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -29,6 +30,7 @@ export class DiepGameEngineService {
     public sessionKills = 0; 
     public showingQuadrivium = false;
     public showingAchievements = false;
+    public showingCollection = false;
     public gameOver = false;
     public isPaused = false;
     public isDarkMode = true;
@@ -40,6 +42,7 @@ export class DiepGameEngineService {
     public isGameStarted = false;
     public topScores: HighScore[] = [];
 
+    public currentMode: 'MENU' | 'ARENA' | 'SHOP' = 'MENU';
     public currentDifficulty: DifficultyMode = 'MEDIUM';
     public persistentXp = 0;
 
@@ -48,7 +51,6 @@ export class DiepGameEngineService {
     public onRenderCallback: () => void = () => {};
 
     public arenaEnabled = true;
-
     private systems: GameSystem[] = [];
 
     constructor(
@@ -64,8 +66,9 @@ export class DiepGameEngineService {
         public arenaManager: DiepArenaManager,
         public hazardDirector: DiepFloorDirector,
         public arenaReset: DiepArenaResetService,
-        public deathAnimation: DiepDeathAnimationService,
-        public diepStatsService: DiepStatsService
+        public gameOverService: DiepGameOverService,
+        public diepStatsService: DiepStatsService,
+        public shopManagerService: DiepShopManagerService
     ) {
         this.playerService.initializePlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();
@@ -75,12 +78,12 @@ export class DiepGameEngineService {
         this.systems = [
             this.playerService,
             this.projectileService,
+            this.arenaManager,
             this.collisionService,
             this.enemyService,
-            this.deathAnimation
+            this.gameOverService
         ];
 
-        // Mirror service property to engine instance for easy menu rendering extraction
         (this as any).diepStatsService = this.diepStatsService;
     }
 
@@ -94,7 +97,7 @@ export class DiepGameEngineService {
     }
 
     private ticker = (time: number) => {
-        const isLogicPaused = this.isPaused || (this.gameOver && this.deathAnimation.deathAnimationTimeStart === null);
+        const isLogicPaused = this.isPaused || (this.gameOver && !this.gameOverService.isAnimationActive());
         DiepTimeManager.update(isLogicPaused, time);
 
         this.update();
@@ -105,18 +108,20 @@ export class DiepGameEngineService {
 
     public update() {
         const F = DiepTimeManager.gameTick;
-        
         this.arenaReset.updateTransition();
 
-        for (const system of this.systems) {
-            system.update(this, F, DiepTimeManager.gameMs);
-        }
+        if (this.currentMode === 'SHOP') {
+            this.shopManagerService.updateShop(this, F, DiepTimeManager.gameMs);
+        } else {
+            for (const system of this.systems) {
+                system.update(this, F, DiepTimeManager.gameMs);
+            }
 
-        if (this.isGameStarted && !this.isPaused && !this.gameOver) {
-            this.hazardDirector.update(DiepTimeManager.gameMs, this.width, this.height);
-            this.waveManager.updateWaves(this.enemies, this.width, this.height);
-            this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
-            this.diepStatsService.trackTime(DiepTimeManager.gameMs / 1000);
+            if (this.isGameStarted && !this.isPaused && !this.gameOver) {
+                this.waveManager.updateWaves(this.enemies, this.width, this.height);
+                this.achievementService.updateProgress('WAVE', this.waveManager.waveCount);
+                this.diepStatsService.trackTime(DiepTimeManager.gameMs / 1000);
+            }
         }
     }
 
@@ -128,5 +133,7 @@ export class DiepGameEngineService {
         return this.isPaused; 
     }
 
-    public toggleDarkMode() { this.isDarkMode = !this.isDarkMode; }
+    public enterShopMode(): void {
+        this.shopManagerService.transitionToShop(this);
+    }
 }

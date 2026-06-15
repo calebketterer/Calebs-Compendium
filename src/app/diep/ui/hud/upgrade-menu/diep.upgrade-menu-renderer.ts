@@ -1,5 +1,5 @@
 import { Player, DiepButton } from '../../../core/diep.interfaces';
-import { UPGRADE_REGISTRY, UpgradePath } from '../../../engine/subsystems/player-upgrades/diep.upgrade-registry';
+import { UPGRADE_REGISTRY, UpgradePath } from '../../../engine/subsystems/player/player-upgrades/diep.upgrade-registry';
 import { UpgradeBarRenderer } from './upgrade-bar-renderer';
 import { UpgradeMenuManager } from './diep.upgrade-menu.manager';
 

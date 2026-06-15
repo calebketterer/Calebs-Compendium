@@ -3,26 +3,36 @@ import { Injectable } from '@angular/core';
 import { Bullet, TrailSegment, Player, GameSystem } from '../../core/diep.interfaces';
 import { DiepTimeManager } from '../../core/diep.time-manager';
 import { DiepGameEngineService } from '../diep.game-engine.service';
-import { DiepPlayerService } from './diep.player.service';
-import { DiepStatsService } from '../../core/diep.stats.service';
+import { DiepPlayerService } from './player/diep.player.service';
+import { DiepWeaponController } from './player/diep.weapon-controller';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DiepProjectileService implements GameSystem {
-    private shotTimer = 0;
 
     constructor(
         private playerService: DiepPlayerService,
-        private diepStatsService: DiepStatsService
+        private weaponController: DiepWeaponController
     ) {}
 
     public update(engine: DiepGameEngineService, tick: number, ms: number): void {
         const activePlayer = this.playerService.player;
 
-        // Handle automated shooting checking the engine input state directly
-        if (engine.mouseAiming && engine.mouseDown && activePlayer && activePlayer.health > 0) {
-            this.shootBullet(activePlayer, engine.mousePos, engine.mouseAiming, engine.lastAngle, engine.bullets);
+        if (activePlayer && activePlayer.health > 0) {
+            // Firing is active if holding mouse during mouseAiming, OR holding 'k' when mouseAiming is disabled
+            const isTryingToShoot = (engine.mouseAiming && engine.mouseDown) || (!engine.mouseAiming && engine.keys['k']);
+
+            // Constantly update the weapon subsystem so cooldown clocks track fluidly
+            this.weaponController.updateWeapon(
+                ms,
+                isTryingToShoot,
+                activePlayer,
+                engine.mousePos,
+                engine.mouseAiming,
+                engine.lastAngle,
+                engine.bullets
+            );
         }
 
         engine.bullets = this.updateBullets(
@@ -40,59 +50,6 @@ export class DiepProjectileService implements GameSystem {
             activePlayer, 
             ms
         );
-    }
-
-    public shootBullet(
-        player: Player, 
-        mousePos: { x: number; y: number }, 
-        mouseAiming: boolean, 
-        lastAngle: number, 
-        bullets: Bullet[],
-    ): void {
-        this.shotTimer += DiepTimeManager.gameMs;
-        
-        const fireDelay = 1000 / player.fireRate;
-
-        if (this.shotTimer < fireDelay) return;
-        
-        this.shotTimer = 0; 
-
-        const angle = mouseAiming 
-            ? Math.atan2(mousePos.y - player.y, mousePos.x - player.x) 
-            : lastAngle;
-            
-        const barrelLength = player.radius * 2.0;
-        const radius = 7.5;
-        
-        const bulletMass = (Math.pow(radius, 2) * Math.PI) * (player.bulletHealth * 0.001);
-        const recoilForce = (bulletMass * player.bulletSpeed) / player.mass;
-
-        player.vx -= Math.cos(angle) * recoilForce;
-        player.vy -= Math.sin(angle) * recoilForce;
-
-        bullets.push({
-            id: Math.random().toString(36).substr(2, 9),
-            x: player.x + Math.cos(angle) * barrelLength,
-            y: player.y + Math.sin(angle) * barrelLength,
-            dx: Math.cos(angle) * player.bulletSpeed,
-            dy: Math.sin(angle) * player.bulletSpeed,
-            radius: radius,
-            mass: bulletMass,
-            color: player.color,
-            ownerType: 'PLAYER',
-            health: player.bulletHealth,
-            maxHealth: player.bulletHealth,
-            damage: player.bulletDamage,
-            isFlying: true,
-            isGhost: false,
-        });
-
-        // Log the projectile execution telemetry
-        this.diepStatsService.recordShotFired();
-    }
-
-    public resetCooldown(): void {
-        this.shotTimer = 1000;
     }
 
     public updateBullets(

@@ -35,7 +35,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts"
-  ],
+, "src/app/diep/engine/subsystems/shop/vendors/general.vendor.ts"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]

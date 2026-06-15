@@ -1,3 +1,4 @@
+// src/app/diep/ui/hud/diep.hud-renderer.ts
 import { Player } from '../../core/diep.interfaces';
 import { DiepXpBarRenderer } from './diep.xp-bar-renderer';
 import { DiepHealthBarRenderer } from './diep.health-bar-renderer';
@@ -15,7 +16,8 @@ export class DiepHudRenderer {
     // 1. Internal Visibility Check
     if (!g.isGameStarted) return;
 
-    const isOverlayActive = g.isPaused || (g.gameOver && g.deathAnimation.deathAnimationTimeStart === null);
+    // Corrected to reference the newly encapsulated game over state provider check
+    const isOverlayActive = g.isPaused || (g.gameOver && !g.gameOverService.isAnimationActive());
     const uiTextColor = isOverlayActive ? '#fff' : (g.isDarkMode ? '#ecf0f1' : '#333');
 
     // 2. Draw Sub-modules (Bars and Menus) - Now safely using the injected player object

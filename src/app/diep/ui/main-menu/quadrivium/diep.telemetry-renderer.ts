@@ -48,7 +48,7 @@ export class DiepTelemetryRenderer {
       { name: 'UPGRADES APPLIED', value: (tracker.upgradesSpent || 0).toLocaleString() },
       { name: 'GAMES PLAYED', value: (tracker.gamesPlayed || 0).toLocaleString() },
       { name: 'WAVES CONQUERED', value: (tracker.wavesConquered || 0).toLocaleString() },
-      { name: 'DAMAGE DEALT', value: (tracker.damageDealt || 0).toLocaleString() }
+      { name: 'DAMAGE DEALT', value: Math.floor(tracker.damageDealt || 0).toLocaleString() }
     ];
 
     ctx.font = 'bold 11px Inter, sans-serif';

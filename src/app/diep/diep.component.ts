@@ -1,13 +1,13 @@
+// src/app/diep/diep.component.ts
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiepMenus } from './ui/diep.menus-manager';
-import { DiepWorldRenderer } from './ui/diep.arena-renderer';
-import { DiepHudRenderer } from './ui/hud/diep.hud-renderer';
+import { DiepSceneSelector } from './ui/diep.scene-selector';
 import { DiepGameEngineService } from './engine/diep.game-engine.service'; 
 import { DiepInputService } from './engine/diep.input.service';
 import { DiepInteractionService } from './ui/buttons/diep.button-interaction.service';
 import { DiepDebugService} from './engine/debug/diep.debug.service';
-import { DiepPlayerService } from './engine/subsystems/diep.player.service';
+import { DiepPlayerService } from './engine/subsystems/player/diep.player.service';
 
 @Component({
   selector: 'app-diep',
@@ -33,16 +33,12 @@ export class DiepComponent implements AfterViewInit {
     this.ctx = this.canvasRef.nativeElement.getContext('2d')!;
     this.canvasRef.nativeElement.focus(); 
     
-    // Ensure the manager knows it should be fading in
     this.gameEngine.arenaReset.transition.fadeIn();
-
-    // Start the engine ticker and tell it how to draw
     this.gameEngine.startTicker(() => this.draw());
   }
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-
     if (this.debugService.handleDebugInput(event)) {
       return;
     }
@@ -66,7 +62,6 @@ export class DiepComponent implements AfterViewInit {
 
   @HostListener('document:mousedown', ['$event'])
   onMouseDown(event: MouseEvent) {
-    // 1. First, check if the user clicked a UI button or the pause icon
     const handledByUi = this.interactionService.handleMouseEvent(
       event, 
       this.canvasRef.nativeElement,
@@ -74,7 +69,6 @@ export class DiepComponent implements AfterViewInit {
       () => this.draw()
     );
 
-    // 2. If it wasn't a UI click, proceed to game input (e.g., shooting)
     if (!handledByUi) {
       this.inputService.handleMouseDown(
         event, 
@@ -97,13 +91,10 @@ export class DiepComponent implements AfterViewInit {
     const h = g.height;
     const player = this.playerService.player;
 
-    // 1. Draw Game World (Ground, Enemies, Players, Walls)
-    DiepWorldRenderer.renderWorld(ctx, g, player, w, h);
+    // 1. Process all world and HUD scene calculations seamlessly
+    DiepSceneSelector.renderScene(ctx, g, player, w, h);
 
-    // 2. Draw HUD (Now manages its own internal start-check)
-    DiepHudRenderer.draw(ctx, g, player, w, h);
-
-    // 3. Draw UI Layers (Menus, Overlays, Transitions)
+    // 2. Overlay master canvas menus, sliders, and fade transitions
     DiepMenus.renderUI(ctx, g, w, h);
   }
 }

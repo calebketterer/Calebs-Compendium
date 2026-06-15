@@ -1,5 +1,5 @@
 import { Player } from '../../../core/diep.interfaces';
-import { UPGRADE_REGISTRY } from '../../../engine/subsystems/player-upgrades/diep.upgrade-registry';
+import { UPGRADE_REGISTRY } from '../../../engine/subsystems/player/player-upgrades/diep.upgrade-registry';
 
 export class UpgradeMenuManager {
   public static slideX: number = -300;

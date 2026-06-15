@@ -1,9 +1,9 @@
 // src/app/diep/engine/subsystems/player-upgrades/diep.player-upgrades.service.ts
 import { Injectable } from '@angular/core';
-import { Player, PlayerProgression, DifficultyMode, Enemy } from '../../../core/diep.interfaces';
+import { Player, PlayerProgression, DifficultyMode, Enemy } from '../../../../core/diep.interfaces';
 import { UPGRADE_REGISTRY } from './diep.upgrade-registry';
-import { AchievementService } from '../../../core/diep.achievement.service';
-import { DiepStatsService } from '../../../core/diep.stats.service';
+import { AchievementService } from '../../../../core/diep.achievement.service';
+import { DiepStatsService } from '../../../../core/diep.stats.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerUpgradesService {

@@ -1,4 +1,7 @@
+// src/app/diep/engine/subsystems/arena/arena.manager.ts
 import { Injectable } from '@angular/core';
+import { GameSystem } from '../../../core/diep.interfaces';
+import { DiepFloorDirector } from './arena.floor-director.service';
 
 export enum TileType {
   EMPTY = 'EMPTY',
@@ -16,7 +19,7 @@ export interface ArenaTile {
 }
 
 @Injectable({ providedIn: 'root' })
-export class DiepArenaManager {
+export class DiepArenaManager implements GameSystem {
   public readonly tileSize = 50;
   private grid: Map<string, ArenaTile> = new Map();
   private columns: number = 0;
@@ -24,6 +27,8 @@ export class DiepArenaManager {
 
   // 1500ms allows for 3 distinct blinks at 500ms intervals
   private readonly WARNING_DURATION = 1500;
+
+  constructor(private hazardDirector: DiepFloorDirector) {}
 
   public init(width: number, height: number): void {
     this.columns = Math.ceil(width / this.tileSize);
@@ -44,41 +49,62 @@ export class DiepArenaManager {
     }
   }
 
-  public update(deltaTime: number): void {
-    this.grid.forEach(tile => {
-      // Use 'as any' for comparisons to avoid TS "no overlap" errors during build
-      const target = tile.targetType as any;
-      const current = tile.type as any;
+  /**
+   * Satisfies the GameSystem contract.
+   * Encapsulates grid evaluation and layout direction calculations entirely.
+   */
+  public update(engine: any, tick: number, ms: number): void {
+    if (!engine.arenaEnabled) return;
 
-      // HANDLE HOLE WARNING & LOWERING
+    // Tick the grid tile matrix transformations using the exact engine time delta
+    this.tickGrid(ms);
+
+    // Coordinate the pattern generation sequences and pass the instance downward
+    this.hazardDirector.update(ms, engine.width, engine.height, this);
+  }
+
+  private tickGrid(deltaTime: number): void {
+    this.grid.forEach(tile => {
+      const target = tile.targetType;
+
+      // HANDLE HOLE LIFECYCLE
       if (target === TileType.HOLE) {
-        if (current !== TileType.HOLE) {
+        if (tile.type !== TileType.HOLE) {
           if (tile.warningTime < this.WARNING_DURATION) {
             tile.warningTime += deltaTime;
           } else {
-            // After warning, start lowering
             tile.type = TileType.HOLE;
             tile.transition = 0;
           }
         } else if (tile.transition < 1) {
-          // Slow lowering transition
           tile.transition += deltaTime * 0.001; 
           if (tile.transition > 1) tile.transition = 1;
         }
       } 
-      // HANDLE WALL RAISING
-      else if (target === TileType.WALL && tile.transition < 1) {
-        tile.transition += deltaTime * 0.002;
-        if (tile.transition >= 1) {
+      // HANDLE WALL LIFECYCLE
+      else if (target === TileType.WALL) {
+        if (tile.type !== TileType.WALL) {
           tile.type = TileType.WALL;
-          tile.transition = 1;
+          tile.transition = 0;
+        }
+        
+        if (tile.transition < 1) {
+          tile.transition += deltaTime * 0.002;
+          if (tile.transition >= 1) {
+            tile.transition = 1;
+          }
         }
       }
-      // HANDLE CLEARING/FADING OUT
-      else if (target === TileType.EMPTY && tile.transition > 0) {
-        tile.transition -= deltaTime * 0.0015;
-        if (tile.transition <= 0) {
-          tile.transition = 0;
+      // HANDLE CLEARING / FADING BACK TO EMPTY
+      else if (target === TileType.EMPTY) {
+        if (tile.transition > 0) {
+          tile.transition -= deltaTime * 0.0015;
+          if (tile.transition <= 0) {
+            tile.transition = 0;
+            tile.type = TileType.EMPTY;
+            tile.warningTime = 0;
+          }
+        } else {
           tile.type = TileType.EMPTY;
           tile.warningTime = 0;
         }
@@ -87,7 +113,7 @@ export class DiepArenaManager {
   }
 
   /**
-   * RESTORED: Resets all tiles to empty target for director cleanup
+   * Resets all tiles to empty target for director cleanup
    */
   public clearAll(): void {
     this.grid.forEach(tile => {

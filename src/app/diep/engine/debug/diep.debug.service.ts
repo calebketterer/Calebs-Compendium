@@ -1,7 +1,7 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { DiepGameEngineService } from '../diep.game-engine.service';
 import { DiepAchievementToastRenderer } from '../../ui/hud/diep.achievement-toast';
-import { DiepPlayerService } from '../subsystems/diep.player.service';
+import { DiepPlayerService } from '../subsystems/player/diep.player.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepDebugService {

@@ -1,4 +1,4 @@
-import { UpgradePath } from '../../../engine/subsystems/player-upgrades/diep.upgrade-registry';
+import { UpgradePath } from '../../../engine/subsystems/player/player-upgrades/diep.upgrade-registry';
 
 export class UpgradeBarRenderer {
   public static draw(

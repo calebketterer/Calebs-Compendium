@@ -1,18 +1,17 @@
+// src/app/diep/engine/subsystems/player/diep.player.service.ts
 import { Injectable } from '@angular/core';
-import { Player, DifficultyMode, GameSystem } from '../../core/diep.interfaces';
+import { Player, DifficultyMode, GameSystem } from '../../../core/diep.interfaces';
 import { DiepPlayerUpgradesService } from './player-upgrades/diep.player-upgrades.service';
-import { DiepGameEngineService } from '../diep.game-engine.service';
+import { DiepGameEngineService } from '../../diep.game-engine.service';
+import { CollectibleRegistry } from './collectibles/collectible-registry';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService implements GameSystem {
-    // This is now the definitive single-source-of-truth for the active player state.
+    
     public player!: Player;
 
     constructor(private upgradeService: DiepPlayerUpgradesService) {}
 
-    /**
-     * Clean encapsulation getter to monitor player death without leaking health logic checks.
-     */
     public get isPlayerDead(): boolean {
         return this.player ? this.player.health <= 0 : false;
     }
@@ -21,6 +20,8 @@ export class DiepPlayerService implements GameSystem {
      * Initializes the internal player entity state.
      */
     public initializePlayer(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): void {
+        const existingEquipped = this.player?.inventory?.equippedIds || [];
+
         this.player = { 
             x: 400, y: 300, vx: 0, vy: 0, 
             radius: 20, 
@@ -36,8 +37,40 @@ export class DiepPlayerService implements GameSystem {
             bulletHealth: 10,
             bulletSpeed: 7.5,
             upgrades: {},
-            progression: this.upgradeService.getDefaultProgression(difficulty, carryOverXp)
+            progression: this.upgradeService.getDefaultProgression(difficulty, carryOverXp),
+            
+            inventory: {
+                maxSlots: 16,
+                pixels: 1337, // Playtesting starter balance
+                slots: CollectibleRegistry.getStarterInventoryList(),
+                equippedIds: existingEquipped
+            }
         };
+    }
+
+    /**
+     * Cleanly handles equipping an item via state data mutations without UI-side math leaks.
+     */
+    public equipItem(id: string): void {
+        if (!this.player || !this.player.inventory) return;
+        const inv = this.player.inventory;
+
+        if (inv.equippedIds.length < 3 && !inv.equippedIds.includes(id)) {
+            inv.equippedIds.push(id);
+        }
+    }
+
+    /**
+     * Cleanly handles removing an item from the equipped array state.
+     */
+    public unequipItem(id: string): void {
+        if (!this.player || !this.player.inventory) return;
+        const inv = this.player.inventory;
+
+        const idx = inv.equippedIds.indexOf(id);
+        if (idx !== -1) {
+            inv.equippedIds.splice(idx, 1);
+        }
     }
 
     /**

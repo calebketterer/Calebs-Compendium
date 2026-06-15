@@ -1,3 +1,4 @@
+// src/app/diep/engine/subsystems/arena/arena.wave-manager.ts
 import { Injectable } from '@angular/core';
 import { Enemy } from '../../../core/diep.interfaces';
 import { EnemySpawnerService } from '../../../enemies/diep.enemy-spawner';
@@ -42,9 +43,9 @@ export class DiepWaveManagerService {
     }
 
     private prepareNextWave() {
-        // Log peak completed wave before advancing the internal count parameters
+        // Log that a wave has been completed successfully before changing configuration values
         if (this.diepStatsService) {
-            this.diepStatsService.recordWaveReached(this.waveCount);
+            this.diepStatsService.recordWaveConquered(1);
         }
 
         this.enemySpawnCount++;
