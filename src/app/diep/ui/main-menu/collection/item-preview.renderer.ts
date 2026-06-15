@@ -1,5 +1,5 @@
 // src/app/diep/ui/main-menu/collection/item-preview.renderer.ts
-import { InventoryItem } from '../../../core/diep.interfaces';
+import { InventoryItem, DiepButton, PlayerInventory } from '../../../core/diep.interfaces';
 
 export class ItemPreviewRenderer {
   /**
@@ -11,7 +11,8 @@ export class ItemPreviewRenderer {
     panelX: number,
     panelY: number,
     panelW: number,
-    panelH: number
+    panelH: number,
+    inv: PlayerInventory
   ): void {
     // Render Inspection Right-Side Base Overlay Box Container
     ctx.fillStyle = '#161616';
@@ -23,18 +24,22 @@ export class ItemPreviewRenderer {
     ctx.stroke();
 
     if (!selectedItem) {
-      ctx.fillStyle = '#4f4f4f';
+      ctx.fillStyle = '#666666';
       ctx.font = 'italic 15px Inter, sans-serif';
-      ctx.textAlign = 'left';
-      this.wrapText(ctx, 'Select an occupied inventory slot to inspect details.', panelX + 25, panelY + 45, panelW - 50, 22);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Select an item to inspect details.', panelX + panelW / 2, panelY + panelH / 2);
+      ctx.textBaseline = 'alphabetic';
       return;
     }
 
+    ctx.textBaseline = 'alphabetic';
+
     // Render Item Title Header Text
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.font = 'bold 24px Inter, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(selectedItem.name, panelX + 25, panelY + 45);
+    ctx.fillText(selectedItem.name, panelX + 30, panelY + 50);
 
     // Render Type Badge Category Tag
     const tagText = selectedItem.type.replace('_', ' ');
@@ -43,13 +48,12 @@ export class ItemPreviewRenderer {
 
     ctx.fillStyle = '#2980b9';
     ctx.beginPath();
-    ctx.roundRect(panelX + 25, panelY + 62, tagW + 16, 20, 4);
+    ctx.roundRect(panelX + 30, panelY + 68, tagW + 16, 22, 6);
     ctx.fill();
 
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(tagText, panelX + 33, panelY + 76);
+    ctx.fillText(tagText, panelX + 38, panelY + 83);
 
-    // Parse description strings dynamically into distinct functional categories
     let abilityText = '';
     let flavorText = selectedItem.description;
 
@@ -65,36 +69,95 @@ export class ItemPreviewRenderer {
       flavorText = sentences.filter((_: string, idx: number) => idx !== abilityIndex).join(' ');
     }
 
-    let textCursorY = panelY + 120;
+    let textCursorY = panelY + 130;
 
     // 1. Draw Ability modifier line if extracted
     if (abilityText) {
       ctx.fillStyle = '#2ecc71';
-      ctx.font = 'bold 14px Inter, sans-serif';
-      this.wrapText(ctx, abilityText, panelX + 25, textCursorY, panelW - 50, 22);
+      ctx.font = 'bold 15px Inter, sans-serif';
+      this.wrapText(ctx, abilityText, panelX + 30, textCursorY, panelW - 60, 22);
       
-      // Calculate vertical lines wrapping displacement scalar
       const words = abilityText.split(' ');
       let testLine = '';
       let linesCount = 1;
       for (let n = 0; n < words.length; n++) {
         let testWidth = ctx.measureText(testLine + words[n] + ' ').width;
-        if (testWidth > (panelW - 50) && n > 0) {
+        if (testWidth > (panelW - 60) && n > 0) {
           linesCount++;
           testLine = words[n] + ' ';
         } else {
           testLine += words[n] + ' ';
         }
       }
-      textCursorY += (linesCount * 22) + 12;
+      textCursorY += (linesCount * 22) + 16;
     }
 
     // 2. Draw Flavor lore sub-text block underneath
     if (flavorText) {
-      ctx.fillStyle = 'rgba(236, 240, 241, 0.5)';
+      ctx.fillStyle = 'rgba(236, 240, 241, 0.45)';
       ctx.font = 'italic 13px Inter, sans-serif';
-      this.wrapText(ctx, flavorText, panelX + 25, textCursorY, panelW - 50, 20);
+      this.wrapText(ctx, flavorText, panelX + 30, textCursorY, panelW - 60, 20);
     }
+  }
+
+  /**
+   * Adds the interactive toggle button inside the item preview sub-panel bounds.
+   */
+  public static addPanelButtons(
+    list: DiepButton[],
+    selectedItem: InventoryItem | null,
+    panelX: number,
+    panelY: number,
+    panelW: number,
+    panelH: number,
+    inv: PlayerInventory,
+    g: any
+  ): void {
+    if (!selectedItem) return;
+
+    const isEquipped = inv.equippedIds.includes(selectedItem.id);
+    const slotsFull = inv.equippedIds.length >= 3;
+
+    let btnLabel = isEquipped ? 'UNEQUIP ITEM' : 'EQUIP ITEM';
+    let btnColor = isEquipped ? '#c0392b' : '#2ecc71';
+    let borderC = isEquipped ? '#a93226' : '#27ae60';
+    let isClickable = true;
+
+    if (!isEquipped && slotsFull) {
+      btnLabel = 'LOADOUT FULL';
+      btnColor = '#2c3e50';
+      borderC = '#34495e';
+      isClickable = false;
+    }
+
+    const btnW = 160;
+    const btnH = 40;
+    // Horizontally centered inside the preview panel bounds
+    const btnX = panelX + (panelW - btnW) / 2;
+    const btnY = panelY + panelH - btnH - 40;
+
+    list.push({
+      id: 'preview-equip-toggle-btn',
+      label: btnLabel,
+      x: btnX,
+      y: btnY,
+      w: btnW,
+      h: btnH,
+      color: btnColor,
+      borderColor: borderC,
+      textColor: '#ffffff',
+      hoverEffect: isClickable ? 'grow' : 'none',
+      fontSize: 'bold 13px Inter, sans-serif',
+      action: () => {
+        if (!isClickable || !g.playerService) return;
+
+        if (isEquipped) {
+          g.playerService.unequipItem(selectedItem.id);
+        } else {
+          g.playerService.equipItem(selectedItem.id);
+        }
+      }
+    });
   }
 
   private static wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number): void {

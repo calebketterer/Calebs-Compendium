@@ -23,30 +23,72 @@ export class InventoryRenderer {
 
       const isOccupied = i < inv.slots.length;
       const isSelected = i === this.selectedIndex;
+      const item = isOccupied ? inv.slots[i] : null;
+      
+      // Determine if this specific item instance is currently equipped
+      const isEquipped = item ? inv.equippedIds.includes(item.id) : false;
 
       const slotButton = buttons.find(b => b.id === `slot-${i}`);
       const isHovered = slotButton && g.mouseX >= slotX && g.mouseX <= slotX + slotSize && g.mouseY >= slotY && g.mouseY <= slotY + slotSize;
 
-      ctx.fillStyle = isSelected ? '#1c2833' : (isHovered ? '#252525' : '#1e1e1e');
-      ctx.strokeStyle = isSelected ? '#3498db' : (isHovered ? '#555555' : '#333333');
-      ctx.lineWidth = isSelected ? 3 : 2;
+      // Outer Slot Frame Coloring
+      if (isSelected) {
+        ctx.fillStyle = '#1c2833';
+        ctx.strokeStyle = '#3498db';
+        ctx.lineWidth = 3;
+      } else if (isEquipped) {
+        ctx.fillStyle = '#112211';
+        ctx.strokeStyle = '#2ecc71';
+        ctx.lineWidth = 2.5;
+      } else {
+        ctx.fillStyle = isHovered ? '#252525' : '#1e1e1e';
+        ctx.strokeStyle = isHovered ? '#555555' : '#333333';
+        ctx.lineWidth = 2;
+      }
 
       ctx.beginPath();
-      ctx.roundRect(slotX, slotY, slotSize, slotSize, 10);
+      ctx.roundRect(slotX, slotY, slotSize, slotSize, 12);
       ctx.fill();
       ctx.stroke();
 
-      if (isOccupied) {
-        const item = inv.slots[i];
+      if (item) {
+        // Draw Item Illustration
         ctx.save();
         item.drawIllustration(ctx, slotX, slotY, slotSize, frame);
         ctx.restore();
 
+        // Quantity Counter (Bottom Right)
         if (item.quantity > 1) {
           ctx.fillStyle = '#ffffff';
           ctx.font = 'bold 12px Inter, sans-serif';
           ctx.textAlign = 'right';
-          ctx.fillText(`x${item.quantity}`, slotX + slotSize - 8, slotY + slotSize - 8);
+          ctx.fillText(`x${item.quantity}`, slotX + slotSize - 10, slotY + slotSize - 10);
+        }
+
+        // Equipped Badge Indicator (Top Right)
+        if (isEquipped) {
+          ctx.save();
+          const badgeSize = 20;
+          const badgeX = slotX + slotSize - badgeSize - 6;
+          const badgeY = slotY + 6;
+
+          // Draw green backing circle
+          ctx.fillStyle = '#2ecc71';
+          ctx.beginPath();
+          ctx.arc(badgeX + badgeSize / 2, badgeY + badgeSize / 2, badgeSize / 2, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Draw white checkmark icon vector
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(badgeX + 6, badgeY + 10);
+          ctx.lineTo(badgeX + 9, badgeY + 13);
+          ctx.lineTo(badgeX + 15, badgeY + 7);
+          ctx.stroke();
+          ctx.restore();
         }
       }
     }
@@ -60,10 +102,10 @@ export class InventoryRenderer {
     const selectedItem = this.selectedIndex < inv.slots.length ? inv.slots[this.selectedIndex] : null;
 
     // Delegate inspection sub-panel rendering to isolated module handler
-    ItemPreviewRenderer.render(ctx, selectedItem, panelX, panelY, panelW, panelH);
+    ItemPreviewRenderer.render(ctx, selectedItem, panelX, panelY, panelW, panelH, inv);
   }
 
-  public static addButtons(list: DiepButton[], g: any): void {
+  public static addButtons(list: DiepButton[], g: any, width: number, height: number): void {
     const inv = g.playerService?.player?.inventory;
     const gridStartX = 50;
     const gridStartY = 135;
@@ -86,6 +128,16 @@ export class InventoryRenderer {
         borderColor: 'transparent',
         action: () => { this.selectedIndex = i; }
       });
+    }
+
+    if (inv) {
+      const panelX = gridStartX + columns * (slotSize + gap) + 20;
+      const panelY = gridStartY;
+      const panelW = width - panelX - 50;
+      const panelH = maxSlots / columns * (slotSize + gap) - gap;
+      
+      const selectedItem = this.selectedIndex < inv.slots.length ? inv.slots[this.selectedIndex] : null;
+      ItemPreviewRenderer.addPanelButtons(list, selectedItem, panelX, panelY, panelW, panelH, inv, g);
     }
   }
 }

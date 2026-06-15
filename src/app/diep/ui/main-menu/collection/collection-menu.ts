@@ -29,12 +29,15 @@ export class DiepCollectionMenu {
     const gridStartY = 135; 
     const currentTab = DiepCollectionNavigator.tabs[DiepCollectionNavigator.activeTabIndex];
 
-    if (currentTab === 'INVENTORY') {
-      InventoryRenderer.render(ctx, g, width, height, gridStartY, buttons);
-    } else if (currentTab === 'BLUEPRINTS') {
-      BlueprintsRenderer.render(ctx, width, gridStartY);
-    } else if (currentTab === 'CARDS') {
-      CardsRenderer.render(ctx, width, gridStartY);
+    const inv = g.playerService?.player?.inventory;
+    if (inv) {
+      if (currentTab === 'INVENTORY') {
+        InventoryRenderer.render(ctx, g, width, height, gridStartY, buttons);
+      } else if (currentTab === 'BLUEPRINTS') {
+        BlueprintsRenderer.render(ctx, width, gridStartY);
+      } else if (currentTab === 'CARDS') {
+        CardsRenderer.render(ctx, width, gridStartY);
+      }
     }
 
     // Solid Black Transition Fade Masks mirroring Quadrivium animations
@@ -71,7 +74,7 @@ export class DiepCollectionMenu {
 
     const currentTab = DiepCollectionNavigator.tabs[DiepCollectionNavigator.activeTabIndex];
     if (currentTab === 'INVENTORY') {
-      InventoryRenderer.addButtons(list, g);
+      InventoryRenderer.addButtons(list, g, width, height);
     }
 
     return list;

@@ -66,7 +66,7 @@ export interface Bullet {
   isGhost?: boolean;
 }
 
-export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'HAUNTER' |'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO' | 'FLOATER' | 'MEDIC' | 'DETONATOR';
+export type EnemyType = 'ROLLER' | 'MINION' | 'CRASHER' | 'SNIPER' | 'BLOATER' | 'SMASHER' | 'GUNNER' | 'MOTHER'| 'HEALER' | 'HAUNTER' | 'BOMBER'| 'BLASTER'| 'CASTER'| 'ECHO' | 'FLOATER' | 'MEDIC' | 'DETONATOR';
 
 export interface Enemy {
   id: string;
@@ -186,14 +186,12 @@ export interface InventoryItem {
   quantity: number;
   maxStack: number;
   type: ItemType;
-  /**
-   * Vector rendering callback executing contextual canvas logic inside the grid cell boundaries.
-   */
   drawIllustration: (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, frame: number) => void;
 }
 
 export interface PlayerInventory {
   slots: InventoryItem[];
   maxSlots: number;
-  pixels: number; // Retrorock asset currency tracker
+  pixels: number;
+  equippedIds: string[];
 }

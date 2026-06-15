@@ -20,6 +20,8 @@ export class DiepPlayerService implements GameSystem {
      * Initializes the internal player entity state.
      */
     public initializePlayer(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): void {
+        const existingEquipped = this.player?.inventory?.equippedIds || [];
+
         this.player = { 
             x: 400, y: 300, vx: 0, vy: 0, 
             radius: 20, 
@@ -40,9 +42,35 @@ export class DiepPlayerService implements GameSystem {
             inventory: {
                 maxSlots: 16,
                 pixels: 1337, // Playtesting starter balance
-                slots: CollectibleRegistry.getStarterInventoryList()
+                slots: CollectibleRegistry.getStarterInventoryList(),
+                equippedIds: existingEquipped
             }
         };
+    }
+
+    /**
+     * Cleanly handles equipping an item via state data mutations without UI-side math leaks.
+     */
+    public equipItem(id: string): void {
+        if (!this.player || !this.player.inventory) return;
+        const inv = this.player.inventory;
+
+        if (inv.equippedIds.length < 3 && !inv.equippedIds.includes(id)) {
+            inv.equippedIds.push(id);
+        }
+    }
+
+    /**
+     * Cleanly handles removing an item from the equipped array state.
+     */
+    public unequipItem(id: string): void {
+        if (!this.player || !this.player.inventory) return;
+        const inv = this.player.inventory;
+
+        const idx = inv.equippedIds.indexOf(id);
+        if (idx !== -1) {
+            inv.equippedIds.splice(idx, 1);
+        }
     }
 
     /**

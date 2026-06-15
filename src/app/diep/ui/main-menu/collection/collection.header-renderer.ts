@@ -8,6 +8,7 @@ export class CollectionHeaderRenderer {
     }
     const player = g.playerService.player;
     const inv = player.inventory;
+    const frame = g.frameCounter || 0;
 
     // 1. Header Block - High-Boldness Left Aligned Styling
     ctx.textAlign = 'left';
@@ -80,6 +81,17 @@ export class CollectionHeaderRenderer {
       ctx.roundRect(sx, eqStartY, eqSlotSize, eqSlotSize, 6);
       ctx.fill();
       ctx.stroke();
+
+      // Render the item illustration if an item is equipped in this slot index
+      if (e < inv.equippedIds.length) {
+        const itemId = inv.equippedIds[e];
+        const item = inv.slots.find((s: any) => s.id === itemId);
+        if (item) {
+          ctx.save();
+          item.drawIllustration(ctx, sx, eqStartY, eqSlotSize, frame);
+          ctx.restore();
+        }
+      }
     }
   }
 
@@ -107,7 +119,11 @@ export class CollectionHeaderRenderer {
         h: eqSlotSize,
         color: 'transparent',
         borderColor: 'transparent',
-        action: () => { /* Future equipment management hooks */ }
+        action: () => {
+          if (!inv || e >= inv.equippedIds.length) return;
+          const itemId = inv.equippedIds[e];
+          g.playerService.unequipItem(itemId);
+        }
       });
     }
   }
