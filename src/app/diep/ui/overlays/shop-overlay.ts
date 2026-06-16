@@ -15,18 +15,18 @@ export class DiepShopOverlay {
     // Thick dark drop-stroke for text depth
     ctx.strokeStyle = '#0d1117';
     ctx.lineWidth = 6;
-    ctx.strokeText('PLAYER SHOP', width / 2, 60);
+    ctx.strokeText('ITEM MARKET', width / 2, 60);
 
     ctx.fillStyle = '#3498db';
     ctx.shadowBlur = 12;
     ctx.shadowColor = 'rgba(52, 152, 219, 0.4)';
-    ctx.fillText('PLAYER SHOP', width / 2, 60);
+    ctx.fillText('ITEM MARKET', width / 2, 60);
 
     // 2. Render Beta Subtitle
     ctx.shadowBlur = 0; // Turn off glow effects so small text doesn't blur into a smear
     ctx.font = '500 16px Inter, sans-serif';
     ctx.fillStyle = '#95a5a6'; // Clean neutral slate gray
-    ctx.fillText('Welcome to the player shop! This feature is in beta mode.', width / 2, 90);
+    ctx.fillText('Welcome to the market! This feature is in beta mode.', width / 2, 90);
     ctx.restore();
 
     // 3. Fetch and Render Layout Navigation Buttons
