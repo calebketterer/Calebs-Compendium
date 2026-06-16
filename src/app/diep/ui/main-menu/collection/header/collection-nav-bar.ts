@@ -1,5 +1,5 @@
 // src/app/diep/ui/main-menu/collection/collection-nav-bar.ts
-import { DiepButton } from '../../../core/diep.interfaces';
+import { DiepButton } from '../../../../core/diep.interfaces';
 
 export class DiepCollectionNavigator {
   public static tabs = ['INVENTORY', 'BLUEPRINTS', 'CARDS'];

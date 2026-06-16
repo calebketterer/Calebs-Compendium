@@ -1,5 +1,5 @@
 // src/app/diep/ui/main-menu/collection/item-text-processor.ts
-import { InventoryItem } from '../../../core/diep.interfaces';
+import { InventoryItem } from '../../../../core/diep.interfaces';
 
 export interface ProcessedItemText {
   abilityText: string;

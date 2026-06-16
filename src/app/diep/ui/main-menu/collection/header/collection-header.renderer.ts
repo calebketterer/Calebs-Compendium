@@ -1,6 +1,6 @@
 // src/app/diep/ui/main-menu/collection/collection-header-renderer.ts
-import { DiepButton } from '../../../core/diep.interfaces';
-import { EquippedSlotsRenderer } from './equipped-slots-renderer';
+import { DiepButton } from '../../../../core/diep.interfaces';
+import { EquippedSlotsRenderer } from './equipped-slots.renderer';
 
 export class CollectionHeaderRenderer {
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, buttons: DiepButton[]): void {

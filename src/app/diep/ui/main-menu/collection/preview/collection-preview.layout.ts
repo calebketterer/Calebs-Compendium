@@ -1,5 +1,5 @@
 // src/app/diep/ui/main-menu/collection/item-preview.layout.ts
-import { InventoryItem, DiepButton, PlayerInventory } from '../../../core/diep.interfaces';
+import { InventoryItem, DiepButton, PlayerInventory } from '../../../../core/diep.interfaces';
 
 export class ItemPreviewLayout {
   /**

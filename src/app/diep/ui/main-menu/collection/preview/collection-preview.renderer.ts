@@ -1,5 +1,5 @@
 // src/app/diep/ui/main-menu/collection/item-preview.renderer.ts
-import { InventoryItem } from '../../../core/diep.interfaces';
+import { InventoryItem } from '../../../../core/diep.interfaces';
 import { ItemTextProcessor } from './item-text-processor';
 
 export class ItemPreviewRenderer {
