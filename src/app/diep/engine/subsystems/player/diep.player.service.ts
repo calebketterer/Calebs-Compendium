@@ -4,13 +4,17 @@ import { Player, DifficultyMode, GameSystem } from '../../../core/diep.interface
 import { DiepPlayerUpgradesService } from './player-upgrades/diep.player-upgrades.service';
 import { DiepGameEngineService } from '../../diep.game-engine.service';
 import { CollectibleRegistry } from './collectibles/collectible-registry';
+import { DiepPixelsService } from '../../../core/diep.pixels.service';
 
 @Injectable({ providedIn: 'root' })
 export class DiepPlayerService implements GameSystem {
     
     public player!: Player;
 
-    constructor(private upgradeService: DiepPlayerUpgradesService) {}
+    constructor(
+        private upgradeService: DiepPlayerUpgradesService,
+        private pixelsService: DiepPixelsService
+    ) {}
 
     public get isPlayerDead(): boolean {
         return this.player ? this.player.health <= 0 : false;
@@ -18,9 +22,13 @@ export class DiepPlayerService implements GameSystem {
 
     /**
      * Initializes the internal player entity state.
+     * Hooks into the persistent Pixels Service to preserve wallet balances between games.
      */
     public initializePlayer(difficulty: DifficultyMode = 'MEDIUM', carryOverXp: number = 0): void {
         const existingEquipped = this.player?.inventory?.equippedIds || [];
+        
+        // Grab the saved long-term wallet balance from storage via our service cache safely
+        const currentPixels = this.pixelsService.balance;
 
         this.player = { 
             x: 400, y: 300, vx: 0, vy: 0, 
@@ -41,7 +49,7 @@ export class DiepPlayerService implements GameSystem {
             
             inventory: {
                 maxSlots: 16,
-                pixels: 1337, // Playtesting starter balance
+                pixels: currentPixels, 
                 slots: CollectibleRegistry.getStarterInventoryList(),
                 equippedIds: existingEquipped
             }
