@@ -16,6 +16,7 @@ export class DiepDebugService {
   public handleDebugInput(event: KeyboardEvent): boolean {
     if (!isDevMode()) return false;
 
+    // We check exact key for 'P' (Shift+p) vs 'p' before converting to lowercase
     const exactKey = event.key;
     const lowerKey = exactKey.toLowerCase();
 
@@ -44,11 +45,11 @@ export class DiepDebugService {
       if (isRepeating) {
         // Holding lowercase 'p' zeros out the wallet account completely
         this.pixelsService.spend(this.pixelsService.balance);
-        this.notify('DEBUG', 'WALLET EMPTIED (0 PX)');
+        console.log(`[DEBUG] Wallet Emptied. Current Balance: ${this.pixelsService.balance} PX`);
       } else {
         // Tapping lowercase 'p' reduces balance by 100
         this.pixelsService.spend(100);
-        this.notify('DEBUG', 'DEDUCTED 100 PX');
+        console.log(`[DEBUG] Deducted 100 PX. Current Balance: ${this.pixelsService.balance} PX`);
       }
     } else if (key === 'P') {
       if (isRepeating) {
@@ -59,11 +60,11 @@ export class DiepDebugService {
         } else if (deficit < 0) {
           this.pixelsService.spend(Math.abs(deficit));
         }
-        this.notify('DEBUG', 'WALLET MAXED (1,000,000 PX)');
+        console.log(`[DEBUG] Wallet Maxed. Current Balance: ${this.pixelsService.balance} PX`);
       } else {
         // Tapping uppercase 'P' increments balance by 100
         this.pixelsService.add(100);
-        this.notify('DEBUG', 'ADDED 100 PX');
+        console.log(`[DEBUG] Added 100 PX. Current Balance: ${this.pixelsService.balance} PX`);
       }
     }
   }
