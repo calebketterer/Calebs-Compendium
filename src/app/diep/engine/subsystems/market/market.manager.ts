@@ -1,3 +1,4 @@
+// src/app/diep/engine/subsystems/market/market.manager.ts
 import { Injectable } from '@angular/core';
 import { Player } from '../../../core/diep.interfaces';
 import { MarketRenderer } from './market.renderer';
@@ -78,7 +79,7 @@ export class MarketManagerService {
   /**
    * Delegates rendering operations directly to the isolated graphics layer
    */
-  public drawMarket(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
-    MarketRenderer.drawMarket(ctx, player, width, height);
+  public drawMarket(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
+    MarketRenderer.drawMarket(ctx, g, player, width, height);
   }
 }

@@ -1,12 +1,13 @@
 import { Player } from '../../../core/diep.interfaces';
 import { MARKET_NPCS, MarketNpc } from './market-npc.config';
+import { DiepWorldRenderer } from '../../../ui/diep.arena-renderer';
 
 export class MarketRenderer {
   
   /**
-   * Handles canvas backdrop visuals and dynamically renders populated NPCs
+   * Handles canvas backdrop visuals, populated NPCs, and cosmetic entity layers
    */
-  public static drawMarket(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
+  public static drawMarket(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
     // 1. Draw solid canvas base background layout
     ctx.fillStyle = '#11161b';
     ctx.fillRect(0, 0, width, height);
@@ -32,6 +33,12 @@ export class MarketRenderer {
       const actualX = width * npc.x;
       const actualY = height * npc.y;
       this.drawMarketNpc(ctx, actualX, actualY, npc);
+    }
+
+    // 4. Leverage the shared primitive drawing calls for cosmetic visuals
+    if (g.isGameStarted && player) {
+      DiepWorldRenderer.drawPlayer(ctx, player, g.gameOver);
+      DiepWorldRenderer.drawBullets(ctx, g.bullets);
     }
   }
 
