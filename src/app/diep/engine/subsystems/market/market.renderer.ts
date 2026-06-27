@@ -1,13 +1,12 @@
-// src/app/diep/engine/subsystems/shop/shop-renderer.ts
 import { Player } from '../../../core/diep.interfaces';
-import { DIEP_SHOP_NPCS, DiepShopNpc } from './shop-npc.config';
+import { MARKET_NPCS, MarketNpc } from './market-npc.config';
 
-export class DiepShopRenderer {
+export class MarketRenderer {
   
   /**
    * Handles canvas backdrop visuals and dynamically renders populated NPCs
    */
-  public static drawShop(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
+  public static drawMarket(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
     // 1. Draw solid canvas base background layout
     ctx.fillStyle = '#11161b';
     ctx.fillRect(0, 0, width, height);
@@ -28,18 +27,18 @@ export class DiepShopRenderer {
       ctx.stroke();
     }
 
-    // 3. Loop through and render all active configurated shop NPCs dynamically
-    for (const npc of DIEP_SHOP_NPCS) {
+    // 3. Loop through and render all active configurated market NPCs dynamically
+    for (const npc of MARKET_NPCS) {
       const actualX = width * npc.x;
       const actualY = height * npc.y;
-      this.drawShopNpc(ctx, actualX, actualY, npc);
+      this.drawMarketNpc(ctx, actualX, actualY, npc);
     }
   }
 
   /**
-   * Visual renderer structure for shop NPCs matching tank geometric styling mechanics
+   * Visual renderer structure for market NPCs matching tank geometric styling mechanics
    */
-  private static drawShopNpc(ctx: CanvasRenderingContext2D, x: number, y: number, npc: DiepShopNpc): void {
+  private static drawMarketNpc(ctx: CanvasRenderingContext2D, x: number, y: number, npc: MarketNpc): void {
     const radius = npc.radius;
     
     ctx.save();

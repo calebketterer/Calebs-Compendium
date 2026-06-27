@@ -1,9 +1,8 @@
-// src/app/diep/ui/overlays/shop-overlay.ts
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepButtonRenderer } from '../buttons/diep.button-renderer';
 import { DiepPixelOdometer } from '../hud/diep.pixel-odometer';
 
-export class DiepShopOverlay {
+export class MarketOverlay {
   /**
    * Main overlay draw entry point. Paints titles and structural UI action zones.
    */
@@ -54,7 +53,7 @@ export class DiepShopOverlay {
   public static getButtons(g: any, width: number, height: number): DiepButton[] {
     return [
       {
-        id: 'shop-back-btn',
+        id: 'market-back-btn',
         label: 'BACK',
         x: 30,
         y: 30,
@@ -63,7 +62,7 @@ export class DiepShopOverlay {
         color: '#e74c3c',
         borderColor: '#c0392b',
         hoverEffect: 'grow',
-        action: () => g.shopManagerService.transitionToMenu(g)
+        action: () => g.marketManagerService.transitionToMenu(g)
       }
     ];
   }

@@ -1,18 +1,18 @@
-// src/app/diep/engine/subsystems/shop/shop-physics.processor.ts
-import { Player, Bullet } from '../../../core/diep.interfaces';
-import { DIEP_SHOP_NPCS } from './shop-npc.config';
-import { DiepShopNpcBehaviorEngine } from './shop-npc.behavior'; 
 
-export class DiepShopPhysicsProcessor {
+import { Player, Bullet } from '../../../core/diep.interfaces';
+import { MARKET_NPCS } from './market-npc.config';
+import { MarketNpcBehaviorEngine } from './market-npc.behavior'; 
+
+export class MarketPhysicsProcessor {
   /**
-   * Orchestrates orientation updates, solid collisions, and projectile blocks for the shop scene
+   * Orchestrates orientation updates, solid collisions, and projectile blocks for the market scene
    */
   public static process(g: any, player: Player, bullets: Bullet[], tick: number, ms: number): void {
     if (!player) return;
 
-    for (const npc of DIEP_SHOP_NPCS) {
+    for (const npc of MARKET_NPCS) {
       // 1. Update Kinematics, State Paths, and AI Rotations first
-      DiepShopNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
+      MarketNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
 
       // Re-fetch absolute positioning matrices post-translation processing
       const npcX = g.width * npc.x;

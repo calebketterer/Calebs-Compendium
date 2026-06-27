@@ -1,7 +1,6 @@
-// src/app/diep/engine/subsystems/shop/shop-npc.config.ts
-import { REGISTERED_SHOP_VENDORS, DiepVendorProfile } from './vendors';
+import { REGISTERED_MARKET_VENDORS as REGISTERED_MARKET_VENDORS, DiepVendorProfile } from './vendors';
 
-export interface DiepShopNpc {
+export interface MarketNpc {
   id: string;
   name: string;
   subtitle: string;
@@ -35,7 +34,7 @@ export interface DiepShopNpc {
   accentColor: string;
 }
 
-export class DiepShopNpcConfigRegistry {
+export class MarketNpcConfigRegistry {
   // --- AI Tuning & Weight Adjustments ---
   public static readonly WANDER_SPEED = 1.2;
   public static readonly STEERING_EASE = 0.05; 
@@ -81,7 +80,7 @@ export class DiepShopNpcConfigRegistry {
 }
 
 // Automatically transform drop-in records into live runtime array objects
-export const DIEP_SHOP_NPCS: DiepShopNpc[] = REGISTERED_SHOP_VENDORS.map(v => {
+export const MARKET_NPCS: MarketNpc[] = REGISTERED_MARKET_VENDORS.map(v => {
   const fallbackX = Math.random() * 0.6 + 0.2;
   const fallbackY = Math.random() * 0.4 + 0.4;
 

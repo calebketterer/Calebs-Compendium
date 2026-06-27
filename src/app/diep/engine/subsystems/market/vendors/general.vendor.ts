@@ -1,4 +1,3 @@
-// src/app/diep/engine/subsystems/shop/vendors/general.vendor.ts
 import { DiepVendorProfile } from './vendor.interface';
 
 export const GeneralVendor: DiepVendorProfile = {

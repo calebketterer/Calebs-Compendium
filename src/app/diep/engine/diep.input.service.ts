@@ -30,14 +30,14 @@ export class DiepInputService {
     if (
       this.gameEngine.showingQuadrivium || 
       this.gameEngine.showingAchievements || 
-      this.gameEngine.currentMode === 'SHOP'
+      this.gameEngine.currentMode === 'MARKET'
     ) {
       if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', ' '].includes(key)) {
         event.preventDefault();
       }
     }
 
-    // Fixed: Allowed global pause triggering for both ARENA and SHOP play loops cleanly
+    // Fixed: Allowed global pause triggering for both ARENA and MARKET play loops cleanly
     if (key === 'p' || key === ' ') {
       const wasPaused = this.gameEngine.togglePause();
       drawCallback();

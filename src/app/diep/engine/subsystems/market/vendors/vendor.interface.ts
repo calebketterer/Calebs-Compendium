@@ -1,5 +1,3 @@
-// src/app/diep/engine/subsystems/shop/vendors/vendor.interface.ts
-
 export interface DiepVendorProfile {
   id: string;
   name: string;

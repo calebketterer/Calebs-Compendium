@@ -1,12 +1,11 @@
-// src/app/diep/engine/subsystems/shop/shop-npc.behavior.ts
-import { DIEP_SHOP_NPCS, DiepShopNpc, DiepShopNpcConfigRegistry as Cfg } from './shop-npc.config';
+import { MARKET_NPCS, MarketNpc, MarketNpcConfigRegistry as Cfg } from './market-npc.config';
 
-export class DiepShopNpcBehaviorEngine {
+export class MarketNpcBehaviorEngine {
 
   /**
    * Processes all custom AI kinematics, objective path selections, and steering rotations
    */
-  public static updateBehavior(npc: DiepShopNpc, g: any, playerX: number, playerY: number, tick: number, ms: number): void {
+  public static updateBehavior(npc: MarketNpc, g: any, playerX: number, playerY: number, tick: number, ms: number): void {
     const npcX = g.width * npc.x;
     const npcY = g.height * npc.y;
 
@@ -29,7 +28,7 @@ export class DiepShopNpcBehaviorEngine {
     this.processLookingOrientation(npc, g, g.width * npc.x, g.height * npc.y, playerX, playerY, tick);
   }
 
-  private static processWanderAi(npc: DiepShopNpc, g: any, currentX: number, currentY: number, playerX: number, playerY: number, ms: number): void {
+  private static processWanderAi(npc: MarketNpc, g: any, currentX: number, currentY: number, playerX: number, playerY: number, ms: number): void {
     if (!npc.wanderTimer) npc.wanderTimer = 0;
     npc.wanderTimer -= ms;
 
@@ -80,8 +79,8 @@ export class DiepShopNpcBehaviorEngine {
     }
   }
 
-  private static applySeparationAndSocializing(npc: DiepShopNpc, g: any, npcX: number, npcY: number): void {
-    for (const other of DIEP_SHOP_NPCS) {
+  private static applySeparationAndSocializing(npc: MarketNpc, g: any, npcX: number, npcY: number): void {
+    for (const other of MARKET_NPCS) {
       if (other.id === npc.id) continue;
 
       const otherX = g.width * other.x;
@@ -111,7 +110,7 @@ export class DiepShopNpcBehaviorEngine {
     }
   }
 
-  private static processLookingOrientation(npc: DiepShopNpc, g: any, npcX: number, npcY: number, playerX: number, playerY: number, tick: number): void {
+  private static processLookingOrientation(npc: MarketNpc, g: any, npcX: number, npcY: number, playerX: number, playerY: number, tick: number): void {
     const pDx = playerX - npcX;
     const pDy = playerY - npcY;
     const distToPlayer = Math.sqrt(pDx * pDx + pDy * pDy);
@@ -123,7 +122,7 @@ export class DiepShopNpcBehaviorEngine {
       npc.targetAngle = Math.atan2(npc.vy, npc.vx);
     } 
     else if (npc.focusedNpcId && npc.focusedNpcId !== 'BREAK_AWAY') {
-      const buddy = DIEP_SHOP_NPCS.find(n => n.id === npc.focusedNpcId);
+      const buddy = MARKET_NPCS.find(n => n.id === npc.focusedNpcId);
       if (buddy) {
         npc.targetAngle = Math.atan2((buddy.y * g.height) - npcY, (buddy.x * g.width) - npcX);
       }

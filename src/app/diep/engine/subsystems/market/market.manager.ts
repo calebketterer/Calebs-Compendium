@@ -1,21 +1,20 @@
-// src/app/diep/engine/subsystems/shop/shop.manager.ts
 import { Injectable } from '@angular/core';
 import { Player } from '../../../core/diep.interfaces';
-import { DiepShopRenderer } from './shop-renderer';
-import { DiepShopPhysicsProcessor } from './shop-physics.processor';
-import { DiepShopNpcInitializer } from './shop-npc.initializer';
+import { MarketRenderer } from './market.renderer';
+import { MarketPhysicsProcessor } from './market-physics.processor';
+import { MarketNpcInitializer } from './market-npc.initializer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DiepShopManagerService {
+export class MarketManagerService {
 
   /**
    * Performs data setup and entry mechanics for the store module
    */
-  public transitionToShop(g: any): void {
+  public transitionToMarket(g: any): void {
     g.arenaReset.transition.fadeOut(() => {
-      g.currentMode = 'SHOP';
+      g.currentMode = 'MARKET';
       g.isGameStarted = true;
       g.gameOver = false;
       g.isPaused = false;
@@ -30,7 +29,7 @@ export class DiepShopManagerService {
       }
 
       // FIXED: Point to the isolated lifecycle initializer class
-      DiepShopNpcInitializer.initializeDynamicNpcs();
+      MarketNpcInitializer.initializeDynamicNpcs();
       
       g.arenaReset.transition.fadeIn();
     });
@@ -50,7 +49,7 @@ export class DiepShopManagerService {
   /**
    * Encapsulates running logic for position updates, map constraints, and cosmetic weapon loops
    */
-  public updateShop(g: any, tick: number, ms: number): void {
+  public updateMarket(g: any, tick: number, ms: number): void {
     const p = g.playerService.player;
 
     // 1. Delegate player tracking kinematics
@@ -62,9 +61,9 @@ export class DiepShopManagerService {
     }
     g.projectileService.update(g, tick, ms);
 
-    // 3. Delegate specialized shop collisions
+    // 3. Delegate specialized market collisions
     if (p) {
-      DiepShopPhysicsProcessor.process(g, p, g.bullets, tick, ms);
+      MarketPhysicsProcessor.process(g, p, g.bullets, tick, ms);
     }
     
     // 4. Run boundary containment loops
@@ -79,7 +78,7 @@ export class DiepShopManagerService {
   /**
    * Delegates rendering operations directly to the isolated graphics layer
    */
-  public drawShop(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
-    DiepShopRenderer.drawShop(ctx, player, width, height);
+  public drawMarket(ctx: CanvasRenderingContext2D, player: Player, width: number, height: number): void {
+    MarketRenderer.drawMarket(ctx, player, width, height);
   }
 }

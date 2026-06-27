@@ -1,7 +1,7 @@
 // src/app/diep/ui/diep.scene-selector.ts
 import { Player } from '../core/diep.interfaces';
 import { DiepWorldRenderer } from './diep.arena-renderer';
-import { DiepShopRenderer } from './diep.shop-renderer';
+import { MarketRenderer } from './market.renderer';
 import { DiepHudRenderer } from './hud/diep.hud-renderer';
 
 export class DiepSceneSelector {
@@ -11,8 +11,8 @@ export class DiepSceneSelector {
    */
   public static renderScene(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
     switch (g.currentMode) {
-      case 'SHOP':
-        DiepShopRenderer.renderShop(ctx, g, player, width, height);
+      case 'MARKET':
+        MarketRenderer.renderMarket(ctx, g, player, width, height);
         break;
 
       case 'ARENA':

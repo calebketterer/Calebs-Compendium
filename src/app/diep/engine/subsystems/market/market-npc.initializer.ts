@@ -1,19 +1,18 @@
-// src/app/diep/engine/subsystems/shop/shop-npc.initializer.ts
-import { DIEP_SHOP_NPCS, DiepShopNpc, DiepShopNpcConfigRegistry as Cfg } from './shop-npc.config';
-import { REGISTERED_SHOP_VENDORS } from './vendors';
+import { MARKET_NPCS, MarketNpc, MarketNpcConfigRegistry as Cfg } from './market-npc.config';
+import { REGISTERED_MARKET_VENDORS } from './vendors';
 
-export class DiepShopNpcInitializer {
+export class MarketNpcInitializer {
   /**
-   * Randomizes NPC traits and behaviors upon shop entrance passes
+   * Randomizes NPC traits and behaviors upon market entrance passes
    */
   public static initializeDynamicNpcs(): void {
-    for (const npc of DIEP_SHOP_NPCS) {
+    for (const npc of MARKET_NPCS) {
       npc.behaviorType = Math.random() > 0.5 ? 'WANDER' : 'STAND';
 
       let isFirstTimeThisSession = !Cfg.sessionPositionCache.has(npc.id);
 
       if (isFirstTimeThisSession) {
-        const profile = REGISTERED_SHOP_VENDORS.find(v => v.id === npc.id);
+        const profile = REGISTERED_MARKET_VENDORS.find(v => v.id === npc.id);
         let startupX = npc.x;
         let startupY = npc.y;
 
