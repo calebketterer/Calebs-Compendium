@@ -1,6 +1,7 @@
 // src/app/diep/ui/overlays/shop-overlay.ts
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepButtonRenderer } from '../buttons/diep.button-renderer';
+import { DiepPixelOdometer } from '../hud/diep.pixel-odometer';
 
 export class DiepShopOverlay {
   /**
@@ -29,7 +30,18 @@ export class DiepShopOverlay {
     ctx.fillText('Welcome to the market! This feature is in beta mode.', width / 2, 90);
     ctx.restore();
 
-    // 3. Fetch and Render Layout Navigation Buttons
+    // 3. Render the Encapsulated Odometer Wallet Balance
+    ctx.save();
+    ctx.font = 'bold 20px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    
+    const actualBalance = g.pixelsService?.balance ?? 0;
+    // Hardcoded to standard slate text frame color directly to mirror dark mode presentation
+    DiepPixelOdometer.draw(ctx, actualBalance, width, '#ecf0f1');
+    ctx.restore();
+
+    // 4. Fetch and Render Layout Navigation Buttons
     const buttons = this.getButtons(g, width, height);
     buttons.forEach((btn) => {
       DiepButtonRenderer.draw(ctx, btn, g);
