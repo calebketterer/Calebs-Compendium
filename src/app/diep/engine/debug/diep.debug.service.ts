@@ -59,10 +59,9 @@ export class DiepDebugService {
       this.notify('DEBUG', 'CAM: DETACHED CONTROL');
     } else if (cam.currentMode === 'DETACHED') {
       // 2nd Press: Full Map Overview Zoom
-      cam.setMode('STATIC');
-      // FIXED: Dropped down to 0.23 to pull vertical canvas boundary rails completely on screen
-      cam.scale = 0.23; 
-      console.log('[DEBUG] Camera State: FULL MAP OVERVIEW (Zoomed out scene matrix views)');
+      // FIXED: Invoking the unified camera method instead of doing math leaks inside the debug pipeline
+      cam.setToFullMapOverview(this.gameEngine.width, this.gameEngine.height);
+      console.log(`[DEBUG] Camera State: FULL MAP OVERVIEW (Dynamic Scale: ${cam.scale.toFixed(3)})`);
       this.notify('DEBUG', 'CAM: FULL MAP ZOOM');
     } else {
       // 3rd Press: Revert back to Standard Tracking

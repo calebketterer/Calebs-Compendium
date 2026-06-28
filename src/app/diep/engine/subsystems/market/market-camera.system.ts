@@ -8,8 +8,8 @@ export type CameraMode = 'PLAYER' | 'STATIC' | 'DETACHED';
 })
 export class MarketCameraSystem {
   // Define a larger, open world dimension separate from screen resolution
-  public worldWidth = 2400;
-  public worldHeight = 2400;
+  public worldWidth = 2000;
+  public worldHeight = 2000;
 
   // Actual top-left coordinates of the viewport window relative to the world
   public x = 0;
@@ -64,7 +64,7 @@ export class MarketCameraSystem {
         break;
     }
 
-    // FIXED: Force hard physics environment constraints on the player position so they can't breach world borders
+    // Force hard physics environment constraints on the player position so they can't breach world borders
     if (player) {
       if (player.x < player.radius) player.x = player.radius;
       if (player.y < player.radius) player.y = player.radius;
@@ -74,10 +74,26 @@ export class MarketCameraSystem {
   }
 
   /**
-   * Toggles camera tracking modes. Hook this into keybind triggers if needed.
+   * Toggles camera tracking modes.
    */
   public setMode(mode: CameraMode): void {
     this.currentMode = mode;
+  }
+
+  /**
+   * FIXED: Evaluates both width and height constraints to prevent vertical edge clipping.
+   * Takes the more restrictive dimension and applies a uniform safety padding margin.
+   */
+  public setToFullMapOverview(canvasWidth: number, canvasHeight: number): void {
+    this.currentMode = 'STATIC';
+    
+    // Calculate scale required for width and height independently
+    const scaleX = canvasWidth / this.worldWidth;
+    const scaleY = canvasHeight / this.worldHeight;
+    
+    // Choose the smaller factor so the limiting axis forces the entire map to wrap inside viewports
+    const safetyPadding = 0.95; // Leaving 5% margin for clean framing on all sides
+    this.scale = Math.min(scaleX, scaleY) * safetyPadding;
   }
 
   /**
