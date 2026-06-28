@@ -23,6 +23,10 @@ export class DiepProjectileService implements GameSystem {
             // Firing is active if holding mouse during mouseAiming, OR holding 'k' when mouseAiming is disabled
             const isTryingToShoot = (engine.mouseAiming && engine.mouseDown) || (!engine.mouseAiming && engine.keys['k']);
 
+            const cameraConfig = engine.currentMode === 'MARKET' && engine.marketCameraSystem
+                ? { x: engine.marketCameraSystem.x, y: engine.marketCameraSystem.y, scale: engine.marketCameraSystem.scale }
+                : undefined;
+
             // Constantly update the weapon subsystem so cooldown clocks track fluidly
             this.weaponController.updateWeapon(
                 ms,
@@ -31,7 +35,8 @@ export class DiepProjectileService implements GameSystem {
                 engine.mousePos,
                 engine.mouseAiming,
                 engine.lastAngle,
-                engine.bullets
+                engine.bullets,
+                cameraConfig
             );
         }
 
@@ -41,7 +46,8 @@ export class DiepProjectileService implements GameSystem {
             engine.width, 
             engine.height, 
             activePlayer, 
-            ms
+            ms,
+            engine
         );
 
         engine.toxicTrails = this.updateTrails(
@@ -58,7 +64,8 @@ export class DiepProjectileService implements GameSystem {
         width: number, 
         height: number, 
         player: Player, 
-        deltaTime: number
+        deltaTime: number,
+        engine: DiepGameEngineService
     ): Bullet[] {
         if (deltaTime <= 0) return bullets;
 
@@ -84,6 +91,14 @@ export class DiepProjectileService implements GameSystem {
             if (b.isBomb) {
                 return b.timer !== undefined && b.timer > 0;
             }
+
+            // FIXED: Factor in dynamic camera map boundary sizes to support large-scale open world rendering arrays
+            if (engine.currentMode === 'MARKET' && engine.marketCameraSystem) {
+                const limitW = engine.marketCameraSystem.worldWidth;
+                const limitH = engine.marketCameraSystem.worldHeight;
+                return b.health > 0 && b.x > -100 && b.x < limitW + 100 && b.y > -100 && b.y < limitH + 100;
+            }
+
             return b.health > 0 && b.x > -100 && b.x < width + 100 && b.y > -100 && b.y < height + 100;
         });
     }

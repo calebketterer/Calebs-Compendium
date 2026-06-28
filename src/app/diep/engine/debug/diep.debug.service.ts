@@ -21,6 +21,9 @@ export class DiepDebugService {
     const lowerKey = exactKey.toLowerCase();
 
     switch (lowerKey) {
+      case 'c':
+        this.cycleCameraDebugState();
+        return true;
       case 'l':
         this.triggerRandomAchievement();
         return true;
@@ -35,6 +38,38 @@ export class DiepDebugService {
         return true;
       default:
         return false;
+    }
+  }
+
+  /**
+   * Cycles between Detached Cam, Full Zoomed-Out Map, and Standard Player Centered Tracking
+   */
+  private cycleCameraDebugState(): void {
+    const cam = this.gameEngine.marketCameraSystem;
+    if (!cam || this.gameEngine.currentMode !== 'MARKET') {
+      console.warn('[DEBUG] Camera modifications restricted outside Market mode runtime contexts.');
+      return;
+    }
+
+    if (cam.currentMode === 'PLAYER' && cam.scale === 1.0) {
+      // 1st Press: Detached Movement View
+      cam.setMode('DETACHED');
+      cam.scale = 1.0;
+      console.log('[DEBUG] Camera State: DETACHED MOVEMENT MODE (Use Arrow Keys to pan viewport boundaries)');
+      this.notify('DEBUG', 'CAM: DETACHED CONTROL');
+    } else if (cam.currentMode === 'DETACHED') {
+      // 2nd Press: Full Map Overview Zoom
+      cam.setMode('STATIC');
+      // FIXED: Dropped down to 0.23 to pull vertical canvas boundary rails completely on screen
+      cam.scale = 0.23; 
+      console.log('[DEBUG] Camera State: FULL MAP OVERVIEW (Zoomed out scene matrix views)');
+      this.notify('DEBUG', 'CAM: FULL MAP ZOOM');
+    } else {
+      // 3rd Press: Revert back to Standard Tracking
+      cam.setMode('PLAYER');
+      cam.scale = 1.0;
+      console.log('[DEBUG] Camera State: PLAYER TRACKING RESET');
+      this.notify('DEBUG', 'CAM: PLAYER TRACKING RESET');
     }
   }
 

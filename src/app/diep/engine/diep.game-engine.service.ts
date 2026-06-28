@@ -18,6 +18,7 @@ import { EnemySpawnerService } from '../enemies/diep.enemy-spawner';
 import { DiepStatsService } from '../core/diep.stats.service';
 import { MarketManagerService } from './subsystems/market/market.manager';
 import { DiepPixelsService } from '../core/diep.pixels.service';
+import { MarketCameraSystem } from './subsystems/market/market-camera.system';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -70,7 +71,8 @@ export class DiepGameEngineService {
         public gameOverService: DiepGameOverService,
         public diepStatsService: DiepStatsService,
         public marketManagerService: MarketManagerService,
-        public pixelsService: DiepPixelsService
+        public pixelsService: DiepPixelsService,
+        public marketCameraSystem: MarketCameraSystem
     ) {
         this.playerService.initializePlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();

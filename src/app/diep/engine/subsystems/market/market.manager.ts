@@ -25,8 +25,9 @@ export class MarketManagerService {
       
       const p = g.playerService.player;
       if (p) {
-        p.x = g.width / 2;
-        p.y = g.height * 0.85;
+        // Place the player directly in the true middle of our expanded world map
+        p.x = g.marketCameraSystem.worldWidth / 2;
+        p.y = g.marketCameraSystem.worldHeight / 2;
       }
 
       // FIXED: Point to the isolated lifecycle initializer class
@@ -67,13 +68,16 @@ export class MarketManagerService {
       MarketPhysicsProcessor.process(g, p, g.bullets, tick, ms);
     }
     
-    // 4. Run boundary containment loops
+    // 4. Run boundary containment loops matching expanded world bounds
     if (p) {
       if (p.x < p.radius) p.x = p.radius;
-      if (p.x > g.width - p.radius) p.x = g.width - p.radius;
+      if (p.x > g.marketCameraSystem.worldWidth - p.radius) p.x = g.marketCameraSystem.worldWidth - p.radius;
       if (p.y < p.radius) p.y = p.radius;
-      if (p.y > g.height - p.radius) p.y = g.height - p.radius;
+      if (p.y > g.marketCameraSystem.worldHeight - p.radius) p.y = g.marketCameraSystem.worldHeight - p.radius;
     }
+
+    // 5. Fire camera updates to snap positions cleanly
+    g.marketCameraSystem.update(g);
   }
 
   /**

@@ -1,3 +1,4 @@
+// src/app/diep/engine/subsystems/market/market.renderer.ts
 import { Player } from '../../../core/diep.interfaces';
 import { MARKET_NPCS, MarketNpc } from './market-npc.config';
 import { DiepWorldRenderer } from '../../../ui/diep.arena-renderer';
@@ -8,38 +9,60 @@ export class MarketRenderer {
    * Handles canvas backdrop visuals, populated NPCs, and cosmetic entity layers
    */
   public static drawMarket(ctx: CanvasRenderingContext2D, g: any, player: Player, width: number, height: number): void {
-    // 1. Draw solid canvas base background layout
+    const camX = g.marketCameraSystem.x;
+    const camY = g.marketCameraSystem.y;
+    const worldW = g.marketCameraSystem.worldWidth;
+    const worldH = g.marketCameraSystem.worldHeight;
+    const currentScale = g.marketCameraSystem.scale;
+
+    // 1. Draw solid backdrop color across the viewport frame window bounds
     ctx.fillStyle = '#11161b';
     ctx.fillRect(0, 0, width, height);
 
-    // 2. Render blueprint grids tracking crosswise spaces
+    // Save context state to shift into camera relative drawing coordinate layouts
+    ctx.save();
+    
+    // Apply scale matrix transformation first to capture zooming view extensions
+    ctx.scale(currentScale, currentScale);
+    ctx.translate(-camX, -camY);
+
+    // 2. Render blueprint grids tracking crosswise spaces across full world bounds
     ctx.strokeStyle = 'rgba(52, 152, 219, 0.05)';
     ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 40) {
+    for (let x = 0; x <= worldW; x += 40) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.lineTo(x, worldH);
       ctx.stroke();
     }
-    for (let y = 0; y < height; y += 40) {
+    for (let y = 0; y <= worldH; y += 40) {
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
+      ctx.lineTo(worldW, y);
       ctx.stroke();
     }
 
-    // 3. Loop through and render all active configurated market NPCs dynamically
+    // Draw visual neon perimeter boundaries tracking world box edges
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(0, 0, worldW, worldH);
+
+    // 3. Loop through and render all active market NPCs matching world layouts
     for (const npc of MARKET_NPCS) {
-      const actualX = width * npc.x;
-      const actualY = height * npc.y;
+      // NPCs coordinates map cleanly to absolute pixels across our open world bounds now
+      const actualX = worldW * npc.x;
+      const actualY = worldH * npc.y;
       this.drawMarketNpc(ctx, actualX, actualY, npc);
     }
 
-    // 4. Leverage the shared primitive drawing calls for cosmetic visuals
+    // 4. Leverage shared player and entity rendering loops inside translated camera coordinate blocks
     if (g.isGameStarted && player) {
       DiepWorldRenderer.drawPlayer(ctx, player, g.gameOver);
       DiepWorldRenderer.drawBullets(ctx, g.bullets);
     }
+
+    // Restore context space to clear viewport modifications for clean HUD rendering downstream
+    ctx.restore();
   }
 
   /**

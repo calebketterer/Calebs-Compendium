@@ -1,4 +1,4 @@
-
+// src/app/diep/engine/subsystems/market/market-physics.processor.ts
 import { Player, Bullet } from '../../../core/diep.interfaces';
 import { MARKET_NPCS } from './market-npc.config';
 import { MarketNpcBehaviorEngine } from './market-npc.behavior'; 
@@ -10,13 +10,16 @@ export class MarketPhysicsProcessor {
   public static process(g: any, player: Player, bullets: Bullet[], tick: number, ms: number): void {
     if (!player) return;
 
+    const worldW = g.marketCameraSystem.worldWidth;
+    const worldH = g.marketCameraSystem.worldHeight;
+
     for (const npc of MARKET_NPCS) {
       // 1. Update Kinematics, State Paths, and AI Rotations first
       MarketNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
 
-      // Re-fetch absolute positioning matrices post-translation processing
-      const npcX = g.width * npc.x;
-      const npcY = g.height * npc.y;
+      // FIXED: Match absolute positioning matrices to the expanded camera system world boundaries
+      const npcX = worldW * npc.x;
+      const npcY = worldH * npc.y;
 
       const dx = player.x - npcX;
       const dy = player.y - npcY;

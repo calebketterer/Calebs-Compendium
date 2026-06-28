@@ -88,6 +88,11 @@ export class DiepPlayerService implements GameSystem {
     public update(engine: DiepGameEngineService, F: number, ms: number): void {
         if (!engine.isGameStarted || engine.isPaused || engine.gameOver) return;
 
+        // Provide dynamic camera parameters including scale modifier adjustments
+        const cameraConfig = engine.currentMode === 'MARKET' && engine.marketCameraSystem 
+            ? { x: engine.marketCameraSystem.x, y: engine.marketCameraSystem.y, scale: engine.marketCameraSystem.scale }
+            : undefined;
+
         const results = this.updatePlayerPhysics(
             this.player,
             engine.keys,
@@ -96,7 +101,8 @@ export class DiepPlayerService implements GameSystem {
             engine.width,
             engine.height,
             F,
-            ms
+            ms,
+            cameraConfig
         );
 
         engine.lastAngle = results.lastAngle;
@@ -110,7 +116,8 @@ export class DiepPlayerService implements GameSystem {
         width: number,
         height: number,
         F: number,
-        deltaTime: number
+        deltaTime: number,
+        cameraConfig?: { x: number; y: number; scale: number }
     ): { lastAngle: number } {
         let lastAngle = player.angle;
         const FRICTION = Math.pow(0.9, F); 
@@ -135,7 +142,12 @@ export class DiepPlayerService implements GameSystem {
         }
 
         if (mouseAiming) {
-            player.angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+            // FIXED: Divide screen mouse positions by scaling ratios before translating with world offsets
+            const currentScale = cameraConfig ? cameraConfig.scale : 1.0;
+            const targetX = cameraConfig ? (mousePos.x / currentScale) + cameraConfig.x : mousePos.x;
+            const targetY = cameraConfig ? (mousePos.y / currentScale) + cameraConfig.y : mousePos.y;
+            
+            player.angle = Math.atan2(targetY - player.y, targetX - player.x);
         } else if (Math.abs(player.vx) > 0.1 || Math.abs(player.vy) > 0.1) {
             player.angle = Math.atan2(player.vy, player.vx);
         }
