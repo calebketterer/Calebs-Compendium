@@ -1,3 +1,4 @@
+// src/app/diep/engine/subsystems/market/market-npc.behavior.ts
 import { MARKET_NPCS, MarketNpc, MarketNpcConfigRegistry as Cfg } from './market-npc.config';
 
 export class MarketNpcBehaviorEngine {
@@ -6,8 +7,9 @@ export class MarketNpcBehaviorEngine {
    * Processes all custom AI kinematics, objective path selections, and steering rotations
    */
   public static updateBehavior(npc: MarketNpc, g: any, playerX: number, playerY: number, tick: number, ms: number): void {
-    const npcX = g.width * npc.x;
-    const npcY = g.height * npc.y;
+    // FIXED: Removed screen dimensions scaling. Working with absolute world pixels natively.
+    const npcX = npc.x;
+    const npcY = npc.y;
 
     if (!npc.interactionTimer) npc.interactionTimer = 0;
     if (npc.interactionTimer > 0) npc.interactionTimer -= ms;
@@ -20,12 +22,21 @@ export class MarketNpcBehaviorEngine {
       npc.vy = 0;
     }
 
-    npc.x += (npc.vx / g.width) * tick;
-    npc.y += (npc.vy / g.height) * tick;
+    // FIXED: Native velocity increments added directly without fractional screen scaling step calculations
+    npc.x += npc.vx * tick;
+    npc.y += npc.vy * tick;
+
+    // Outer Map Boundary Constraints to prevent running off edge boundaries
+    const worldW = g.marketCameraSystem.worldWidth;
+    const worldH = g.marketCameraSystem.worldHeight;
+    if (npc.x < npc.radius) { npc.x = npc.radius; npc.vx *= -0.5; }
+    if (npc.y < npc.radius) { npc.y = npc.radius; npc.vy *= -0.5; }
+    if (npc.x > worldW - npc.radius) { npc.x = worldW - npc.radius; npc.vx *= -0.5; }
+    if (npc.y > worldH - npc.radius) { npc.y = worldH - npc.radius; npc.vy *= -0.5; }
 
     Cfg.sessionPositionCache.set(npc.id, { x: npc.x, y: npc.y });
 
-    this.processLookingOrientation(npc, g, g.width * npc.x, g.height * npc.y, playerX, playerY, tick);
+    this.processLookingOrientation(npc, g, npc.x, npc.y, playerX, playerY, tick);
   }
 
   private static processWanderAi(npc: MarketNpc, g: any, currentX: number, currentY: number, playerX: number, playerY: number, ms: number): void {
@@ -45,14 +56,15 @@ export class MarketNpcBehaviorEngine {
     if (npc.wanderState === 'IDLE' && npc.wanderTimer <= 0) {
       npc.focusedNpcId = null; 
 
-      if (Math.random() > 0.5) {
+      if (Math.random() > 0.4) {
         npc.wanderState = 'MOVING_AIMLESS';
-        npc.wanderTargetX = (Math.random() * (Cfg.MAP_BOUNDS.maxX - Cfg.MAP_BOUNDS.minX) + Cfg.MAP_BOUNDS.minX) * g.width;
-        npc.wanderTargetY = (Math.random() * (Cfg.MAP_BOUNDS.maxY - Cfg.MAP_BOUNDS.minY) + Cfg.MAP_BOUNDS.minY) * g.height;
+        npc.wanderTargetX = Math.random() * (Cfg.MAP_BOUNDS.maxX - Cfg.MAP_BOUNDS.minX) + Cfg.MAP_BOUNDS.minX;
+        npc.wanderTargetY = Math.random() * (Cfg.MAP_BOUNDS.maxY - Cfg.MAP_BOUNDS.minY) + Cfg.MAP_BOUNDS.minY;
       } else {
         npc.wanderState = 'MOVING_TO_STALL';
-        npc.wanderTargetX = g.width * 0.5; 
-        npc.wanderTargetY = g.height * 0.5;
+        // FIXED: Pull positions out of camera bounds definitions dynamically
+        npc.wanderTargetX = g.marketCameraSystem.worldWidth * 0.5; 
+        npc.wanderTargetY = g.marketCameraSystem.worldHeight * 0.5;
       }
       npc.wanderTimer = 0; 
     }
@@ -63,8 +75,20 @@ export class MarketNpcBehaviorEngine {
       const tDist = Math.sqrt(tDx * tDx + tDy * tDy);
 
       if (tDist > Cfg.TARGET_ARRIVE_RADIUS) {
-        const desiredVx = (tDx / tDist) * Cfg.WANDER_SPEED;
-        const desiredVy = (tDy / tDist) * Cfg.WANDER_SPEED;
+        let desiredVx = (tDx / tDist) * Cfg.WANDER_SPEED;
+        let desiredVy = (tDy / tDist) * Cfg.WANDER_SPEED;
+
+        // FIXED: Added central gravity preference force vector pulling wander choices back to market core center coordinates
+        const centerWorldX = g.marketCameraSystem.worldWidth * 0.5;
+        const centerWorldY = g.marketCameraSystem.worldHeight * 0.5;
+        const cDx = centerWorldX - currentX;
+        const cDy = centerWorldY - currentY;
+        const cDist = Math.sqrt(cDx * cDx + cDy * cDy);
+
+        if (cDist > 0) {
+          desiredVx += (cDx / cDist) * Cfg.WANDER_SPEED * Cfg.CENTER_GRAVITY_WEIGHT;
+          desiredVy += (cDy / cDist) * Cfg.WANDER_SPEED * Cfg.CENTER_GRAVITY_WEIGHT;
+        }
 
         npc.vx += (desiredVx - npc.vx) * Cfg.STEERING_EASE;
         npc.vy += (desiredVy - npc.vy) * Cfg.STEERING_EASE;
@@ -83,8 +107,8 @@ export class MarketNpcBehaviorEngine {
     for (const other of MARKET_NPCS) {
       if (other.id === npc.id) continue;
 
-      const otherX = g.width * other.x;
-      const otherY = g.height * other.y;
+      const otherX = other.x;
+      const otherY = other.y;
 
       const dx = npcX - otherX;
       const dy = npcY - otherY;
@@ -124,7 +148,7 @@ export class MarketNpcBehaviorEngine {
     else if (npc.focusedNpcId && npc.focusedNpcId !== 'BREAK_AWAY') {
       const buddy = MARKET_NPCS.find(n => n.id === npc.focusedNpcId);
       if (buddy) {
-        npc.targetAngle = Math.atan2((buddy.y * g.height) - npcY, (buddy.x * g.width) - npcX);
+        npc.targetAngle = Math.atan2(buddy.y - npcY, buddy.x - npcX);
       }
     } 
     else {

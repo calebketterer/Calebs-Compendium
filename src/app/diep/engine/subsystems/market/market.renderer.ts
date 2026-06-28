@@ -52,7 +52,7 @@ export class MarketRenderer {
       // NPCs coordinates map cleanly to absolute pixels across our open world bounds now
       const actualX = worldW * npc.x;
       const actualY = worldH * npc.y;
-      this.drawMarketNpc(ctx, actualX, actualY, npc);
+      this.drawMarketNpc(ctx, npc.x, npc.y, npc);
     }
 
     // 4. Leverage shared player and entity rendering loops inside translated camera coordinate blocks

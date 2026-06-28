@@ -1,3 +1,4 @@
+// src/app/diep/engine/subsystems/market/market-npc.initializer.ts
 import { MARKET_NPCS, MarketNpc, MarketNpcConfigRegistry as Cfg } from './market-npc.config';
 import { REGISTERED_MARKET_VENDORS } from './vendors';
 
@@ -17,8 +18,12 @@ export class MarketNpcInitializer {
         let startupY = npc.y;
 
         if (profile) {
-          startupX = profile.initialX !== undefined ? profile.initialX : (Math.random() * 0.6 + 0.2);
-          startupY = profile.initialY !== undefined ? profile.initialY : (Math.random() * 0.4 + 0.4);
+          // FIXED: Multiplied the fallback and vendor config fractional coordinates by 2400 absolute world pixels
+          const pctX = profile.initialX !== undefined ? profile.initialX : (Math.random() * 0.6 + 0.2);
+          const pctY = profile.initialY !== undefined ? profile.initialY : (Math.random() * 0.4 + 0.4);
+          
+          startupX = pctX * 2400;
+          startupY = pctY * 2400;
         }
         Cfg.sessionPositionCache.set(npc.id, { x: startupX, y: startupY });
       }
@@ -28,8 +33,9 @@ export class MarketNpcInitializer {
       npc.y = cachedPos.y;
       
       if (isFirstTimeThisSession) {
-        const deltaX = 0.5 - npc.x;
-        const deltaY = 0.85 - npc.y;
+        // FIXED: Transformed the player spawn tracking angles using absolute center look targets
+        const deltaX = 1200 - npc.x;
+        const deltaY = 2040 - npc.y;
         const angleToPlayerSpawn = Math.atan2(deltaY, deltaX);
         
         npc.currentAngle = angleToPlayerSpawn;

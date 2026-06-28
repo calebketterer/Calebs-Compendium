@@ -10,16 +10,13 @@ export class MarketPhysicsProcessor {
   public static process(g: any, player: Player, bullets: Bullet[], tick: number, ms: number): void {
     if (!player) return;
 
-    const worldW = g.marketCameraSystem.worldWidth;
-    const worldH = g.marketCameraSystem.worldHeight;
-
     for (const npc of MARKET_NPCS) {
       // 1. Update Kinematics, State Paths, and AI Rotations first
       MarketNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
 
-      // FIXED: Match absolute positioning matrices to the expanded camera system world boundaries
-      const npcX = worldW * npc.x;
-      const npcY = worldH * npc.y;
+      // FIXED: Dropped scalar world width/height multiplications since coordinates are absolute world pixels
+      const npcX = npc.x;
+      const npcY = npc.y;
 
       const dx = player.x - npcX;
       const dy = player.y - npcY;
