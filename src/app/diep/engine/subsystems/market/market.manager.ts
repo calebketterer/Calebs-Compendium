@@ -4,11 +4,16 @@ import { Player } from '../../../core/diep.interfaces';
 import { MarketRenderer } from './market.renderer';
 import { MarketPhysicsProcessor } from './market-physics.processor';
 import { MarketNpcInitializer } from './market-npc.initializer';
+import { MarketDecorRuntimeManager } from './decor/decor-runtime.manager';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MarketManagerService {
+
+  constructor(
+    private decorRuntime: MarketDecorRuntimeManager
+  ) {}
 
   /**
    * Performs data setup and entry mechanics for the store module
@@ -24,13 +29,22 @@ export class MarketManagerService {
       g.playerService.initializePlayer(g.currentDifficulty, g.persistentXp);
       
       const p = g.playerService.player;
+      const worldW = g.marketCameraSystem.worldWidth;
+      const worldH = g.marketCameraSystem.worldHeight;
+
       if (p) {
         // Place the player directly in the true middle of our expanded world map
-        p.x = g.marketCameraSystem.worldWidth / 2;
-        p.y = g.marketCameraSystem.worldHeight / 2;
+        p.x = worldW / 2;
+        p.y = worldH / 2;
       }
 
-      // FIXED: Point to the isolated lifecycle initializer class
+      // FIXED: Bind the runtime manager instance onto context state 'g' directly to keep engine clean
+      g.marketDecorRuntimeManager = this.decorRuntime;
+
+      // Populate random market decoration objects before initializing characters
+      g.marketDecorRuntimeManager.generateMarketDecor(worldW, worldH);
+
+      // Point to the isolated lifecycle initializer class
       MarketNpcInitializer.initializeDynamicNpcs();
       
       g.arenaReset.transition.fadeIn();
@@ -63,8 +77,11 @@ export class MarketManagerService {
     }
     g.projectileService.update(g, tick, ms);
 
-    // 3. Delegate specialized market collisions
+    // 3. Delegate specialized static object and market entity collisions
     if (p) {
+      if (g.marketDecorRuntimeManager) {
+        g.marketDecorRuntimeManager.processDecorCollisions(p);
+      }
       MarketPhysicsProcessor.process(g, p, g.bullets, tick, ms);
     }
     

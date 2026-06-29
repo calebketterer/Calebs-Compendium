@@ -47,11 +47,16 @@ export class MarketRenderer {
     ctx.lineWidth = 4;
     ctx.strokeRect(0, 0, worldW, worldH);
 
+    // FIXED: Render procedural environment props beneath active entities layer loop
+    if (g.marketDecorRuntimeManager && g.marketDecorRuntimeManager.activeProps) {
+      for (const prop of g.marketDecorRuntimeManager.activeProps) {
+        prop.render(ctx);
+      }
+    }
+
     // 3. Loop through and render all active market NPCs matching world layouts
     for (const npc of MARKET_NPCS) {
-      // NPCs coordinates map cleanly to absolute pixels across our open world bounds now
-      const actualX = worldW * npc.x;
-      const actualY = worldH * npc.y;
+      // FIXED: Cleared old multiplication calculation artifact lines. Natively rendering clean pixels.
       this.drawMarketNpc(ctx, npc.x, npc.y, npc);
     }
 
