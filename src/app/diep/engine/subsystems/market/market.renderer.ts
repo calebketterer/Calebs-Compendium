@@ -66,6 +66,15 @@ export class MarketRenderer {
       DiepWorldRenderer.drawBullets(ctx, g.bullets);
     }
 
+    // FIXED: Render dynamic overhead/top layer asset components over players and bullets
+    if (g.marketDecorRuntimeManager && g.marketDecorRuntimeManager.activeProps) {
+      for (const prop of g.marketDecorRuntimeManager.activeProps) {
+        if (prop.renderAsTopLayer) {
+          prop.renderAsTopLayer(ctx);
+        }
+      }
+    }
+
     // Restore context space to clear viewport modifications for clean HUD rendering downstream
     ctx.restore();
   }

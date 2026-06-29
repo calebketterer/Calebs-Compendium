@@ -13,12 +13,14 @@ export interface MarketDecorProp {
   disableDefaultRotation?: boolean;
   
   scale?: number; 
-  minScale?: number;
-  maxScale?: number;
+  minScale?: number; 
+  maxScale?: number; 
   
   centerOffset?: { x: number; y: number };
   isSolid: boolean;
   baseColor: string;
   accentColor: string;
+  
   render(ctx: CanvasRenderingContext2D): void;
+  renderAsTopLayer?(ctx: CanvasRenderingContext2D): void;
 }
