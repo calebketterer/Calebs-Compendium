@@ -6,7 +6,7 @@ import { FloorVent } from './vent.prop';
 export const REGISTERED_DECOR_BLUEPRINTS = [
   { classRef: StructuralPillar, type: 'PILLAR', weight: 4 },
   { classRef: PowerCrystal, type: 'CRYSTAL', weight: 2 },
-  { classRef: FloorVent, type: 'VENT', weight: 3 }
+  { classRef: FloorVent, type: 'VENT', weight: 1 }
 ];
 
 export * from './decor.interface';

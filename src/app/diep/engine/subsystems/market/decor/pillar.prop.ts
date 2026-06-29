@@ -8,6 +8,12 @@ export class StructuralPillar implements MarketDecorProp {
   public isSolid = true;
   public baseColor = '#2c3e50';
   public accentColor = '#7f8c8d';
+  
+  public scale = 1;
+
+  // FIXED: Explicitly caps scale ranges for this specific asset type
+  public minScale = 0.90; 
+  public maxScale = 1.40;
 
   constructor(public x: number, public y: number, public angle: number = 0) {}
 
@@ -15,6 +21,10 @@ export class StructuralPillar implements MarketDecorProp {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
+
+    if (this.scale !== 1) {
+      ctx.scale(this.scale, this.scale);
+    }
 
     // Inner concrete pillar base ring
     ctx.beginPath();

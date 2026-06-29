@@ -9,10 +9,12 @@ export interface MarketDecorProp {
   isRectangular?: boolean;
   width?: number;
   height?: number;
+  angle?: number;
+  disableDefaultRotation?: boolean;
   
-  // FIXED: Angle is now tracked on the base definition layer
-  angle?: number; 
-  disableDefaultRotation?: boolean; // Optional flag if an object should NEVER rotate
+  scale?: number; 
+  minScale?: number;
+  maxScale?: number;
   
   centerOffset?: { x: number; y: number };
   isSolid: boolean;
