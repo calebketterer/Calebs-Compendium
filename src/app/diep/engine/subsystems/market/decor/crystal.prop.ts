@@ -10,7 +10,7 @@ export class PowerCrystal implements MarketDecorProp {
   public accentColor = '#4facfe';
   private pulseFrame = Math.random() * 100;
 
-  constructor(public x: number, public y: number) {}
+  constructor(public x: number, public y: number, public angle: number = 0) {}
 
   public render(ctx: CanvasRenderingContext2D): void {
     this.pulseFrame += 0.05;
@@ -18,6 +18,7 @@ export class PowerCrystal implements MarketDecorProp {
 
     ctx.save();
     ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
 
     // Dynamic glowing backing field
     ctx.beginPath();

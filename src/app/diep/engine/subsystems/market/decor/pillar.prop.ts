@@ -9,11 +9,12 @@ export class StructuralPillar implements MarketDecorProp {
   public baseColor = '#2c3e50';
   public accentColor = '#7f8c8d';
 
-  constructor(public x: number, public y: number) {}
+  constructor(public x: number, public y: number, public angle: number = 0) {}
 
   public render(ctx: CanvasRenderingContext2D): void {
     ctx.save();
     ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
 
     // Inner concrete pillar base ring
     ctx.beginPath();
