@@ -1,25 +1,29 @@
-// src/app/diep/engine/subsystems/shop/shop-npc.initializer.ts
-import { DIEP_SHOP_NPCS, DiepShopNpc, DiepShopNpcConfigRegistry as Cfg } from './shop-npc.config';
-import { REGISTERED_SHOP_VENDORS } from './vendors';
+// src/app/diep/engine/subsystems/market/market-npc.initializer.ts
+import { MARKET_NPCS, MarketNpc, MarketNpcConfigRegistry as Cfg } from './market-npc.config';
+import { REGISTERED_MARKET_VENDORS } from './vendors';
 
-export class DiepShopNpcInitializer {
+export class MarketNpcInitializer {
   /**
-   * Randomizes NPC traits and behaviors upon shop entrance passes
+   * Randomizes NPC traits and behaviors upon market entrance passes
    */
   public static initializeDynamicNpcs(): void {
-    for (const npc of DIEP_SHOP_NPCS) {
+    for (const npc of MARKET_NPCS) {
       npc.behaviorType = Math.random() > 0.5 ? 'WANDER' : 'STAND';
 
       let isFirstTimeThisSession = !Cfg.sessionPositionCache.has(npc.id);
 
       if (isFirstTimeThisSession) {
-        const profile = REGISTERED_SHOP_VENDORS.find(v => v.id === npc.id);
+        const profile = REGISTERED_MARKET_VENDORS.find(v => v.id === npc.id);
         let startupX = npc.x;
         let startupY = npc.y;
 
         if (profile) {
-          startupX = profile.initialX !== undefined ? profile.initialX : (Math.random() * 0.6 + 0.2);
-          startupY = profile.initialY !== undefined ? profile.initialY : (Math.random() * 0.4 + 0.4);
+          // FIXED: Multiplied the fallback and vendor config fractional coordinates by 2400 absolute world pixels
+          const pctX = profile.initialX !== undefined ? profile.initialX : (Math.random() * 0.6 + 0.2);
+          const pctY = profile.initialY !== undefined ? profile.initialY : (Math.random() * 0.4 + 0.4);
+          
+          startupX = pctX * 2400;
+          startupY = pctY * 2400;
         }
         Cfg.sessionPositionCache.set(npc.id, { x: startupX, y: startupY });
       }
@@ -29,8 +33,9 @@ export class DiepShopNpcInitializer {
       npc.y = cachedPos.y;
       
       if (isFirstTimeThisSession) {
-        const deltaX = 0.5 - npc.x;
-        const deltaY = 0.85 - npc.y;
+        // FIXED: Transformed the player spawn tracking angles using absolute center look targets
+        const deltaX = 1200 - npc.x;
+        const deltaY = 2040 - npc.y;
         const angleToPlayerSpawn = Math.atan2(deltaY, deltaX);
         
         npc.currentAngle = angleToPlayerSpawn;

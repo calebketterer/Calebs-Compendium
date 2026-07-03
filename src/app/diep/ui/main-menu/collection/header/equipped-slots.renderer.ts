@@ -1,6 +1,6 @@
 // src/app/diep/ui/main-menu/collection/equipped-slots-renderer.ts
-import { DiepButton } from '../../../core/diep.interfaces';
-import { InventoryRenderer } from './inventory-renderer';
+import { DiepButton } from '../../../../core/diep.interfaces';
+import { InventoryRenderer } from '../inventory.renderer';
 
 export class EquippedSlotsRenderer {
   private static lastClickedId: string | null = null;

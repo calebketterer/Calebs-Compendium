@@ -1,4 +1,4 @@
-// src/app/diep/engine/subsystems/diep.weapon-controller.ts
+// src/app/diep/engine/subsystems/player/diep.weapon-controller.ts
 import { Injectable } from '@angular/core';
 import { Player, Bullet } from '../../../core/diep.interfaces';
 import { DiepTimeManager } from '../../../core/diep.time-manager';
@@ -22,7 +22,8 @@ export class DiepWeaponController {
         mousePos: { x: number; y: number }, 
         mouseAiming: boolean, 
         lastAngle: number, 
-        bullets: Bullet[]
+        bullets: Bullet[],
+        cameraConfig?: { x: number; y: number; scale: number }
     ): void {
         const fireDelay = 1000 / player.fireRate;
 
@@ -43,8 +44,13 @@ export class DiepWeaponController {
         // Consume the delay amount instead of wiping to 0 so fractional frame time carries over
         this.shotTimer -= fireDelay; 
 
+        // FIXED: Factor in viewport scaling matrices when computing world target trajectories
+        const currentScale = cameraConfig ? cameraConfig.scale : 1.0;
+        const targetMouseX = cameraConfig ? (mousePos.x / currentScale) + cameraConfig.x : mousePos.x;
+        const targetMouseY = cameraConfig ? (mousePos.y / currentScale) + cameraConfig.y : mousePos.y;
+
         const angle = mouseAiming 
-            ? Math.atan2(mousePos.y - player.y, mousePos.x - player.x) 
+            ? Math.atan2(targetMouseY - player.y, targetMouseX - player.x) 
             : lastAngle;
             
         const barrelLength = player.radius * 2.0;

@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Enemy } from '../../../core/diep.interfaces';
 import { EnemySpawnerService } from '../../../enemies/diep.enemy-spawner';
+import { DiepPixelsService } from '../../../core/diep.pixels.service';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +15,10 @@ export class DiepWaveManagerService {
     // Direct reference hook filled by modern DI context or engine pipelines dynamically if needed
     private diepStatsService: any = null;
 
-    constructor(private spawner: EnemySpawnerService) {}
+    constructor(
+        private spawner: EnemySpawnerService,
+        private pixelsService: DiepPixelsService
+    ) {}
 
     /**
      * Resets wave progression for a new game session.
@@ -43,6 +47,12 @@ export class DiepWaveManagerService {
     }
 
     private prepareNextWave() {
+        // Calculate and award wave reward (10 pixels * completed wave number)
+        // Run this before tracking adjustments increment this.waveCount
+        const rewardAmount = 10 * this.waveCount;
+        const dropped = this.pixelsService.add(rewardAmount);
+        console.log(`Earned +${dropped} Pixels!`);
+
         // Log that a wave has been completed successfully before changing configuration values
         if (this.diepStatsService) {
             this.diepStatsService.recordWaveConquered(1);

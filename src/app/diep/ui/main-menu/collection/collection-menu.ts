@@ -1,16 +1,16 @@
 // src/app/diep/ui/main-menu/collection/collection-menu.ts
 import { DiepButton } from '../../../core/diep.interfaces';
 import { DiepButtonRenderer } from '../../buttons/diep.button-renderer';
-import { DiepCollectionNavigator } from './collection-nav-bar';
-import { CollectionHeaderRenderer } from './collection.header-renderer';
-import { InventoryRenderer } from './inventory-renderer';
-import { BlueprintsRenderer } from './blueprints-renderer';
-import { CardsRenderer } from './cards-renderer';
+import { DiepCollectionNavigator } from './header/collection-nav-bar';
+import { CollectionHeaderRenderer } from './header/collection-header.renderer';
+import { InventoryRenderer } from './inventory.renderer';
+import { BlueprintsRenderer } from './blueprint-collection.renderer';
+import { CardsRenderer } from './card-collection.renderer';
 
 export class DiepCollectionMenu {
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, height: number): void {
     // Process tab inputs and updates before calculations
-    DiepCollectionNavigator.handleInput(g);
+    DiepCollectionNavigator.handleInput(g); 
     DiepCollectionNavigator.updateTransition();
 
     const buttons = this.getButtons(g, width, height);

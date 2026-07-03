@@ -1,22 +1,22 @@
-// src/app/diep/engine/subsystems/shop/shop-physics.processor.ts
+// src/app/diep/engine/subsystems/market/market-physics.processor.ts
 import { Player, Bullet } from '../../../core/diep.interfaces';
-import { DIEP_SHOP_NPCS } from './shop-npc.config';
-import { DiepShopNpcBehaviorEngine } from './shop-npc.behavior'; 
+import { MARKET_NPCS } from './market-npc.config';
+import { MarketNpcBehaviorEngine } from './market-npc.behavior'; 
 
-export class DiepShopPhysicsProcessor {
+export class MarketPhysicsProcessor {
   /**
-   * Orchestrates orientation updates, solid collisions, and projectile blocks for the shop scene
+   * Orchestrates orientation updates, solid collisions, and projectile blocks for the market scene
    */
   public static process(g: any, player: Player, bullets: Bullet[], tick: number, ms: number): void {
     if (!player) return;
 
-    for (const npc of DIEP_SHOP_NPCS) {
+    for (const npc of MARKET_NPCS) {
       // 1. Update Kinematics, State Paths, and AI Rotations first
-      DiepShopNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
+      MarketNpcBehaviorEngine.updateBehavior(npc, g, player.x, player.y, tick, ms);
 
-      // Re-fetch absolute positioning matrices post-translation processing
-      const npcX = g.width * npc.x;
-      const npcY = g.height * npc.y;
+      // FIXED: Dropped scalar world width/height multiplications since coordinates are absolute world pixels
+      const npcX = npc.x;
+      const npcY = npc.y;
 
       const dx = player.x - npcX;
       const dy = player.y - npcY;

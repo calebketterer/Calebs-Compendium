@@ -1,7 +1,7 @@
 // src/app/diep/ui/main-menu/collection/inventory-renderer.ts
 import { DiepButton } from '../../../core/diep.interfaces';
-import { ItemPreviewRenderer } from './item-preview.renderer';
-import { ItemPreviewLayout } from './item-preview.layout';
+import { ItemPreviewRenderer } from './preview/collection-preview.renderer';
+import { ItemPreviewLayout } from './preview/collection-preview.layout';
 
 export class InventoryRenderer {
   public static selectedIndex: number = 0;
@@ -96,7 +96,6 @@ export class InventoryRenderer {
 
     const selectedItem = this.selectedIndex < inv.slots.length ? inv.slots[this.selectedIndex] : null;
 
-    // Fixed Signature: Stripped 'inv' reference from pure layout renderer pass
     ItemPreviewRenderer.render(ctx, selectedItem, panelX, panelY, panelW, panelH);
   }
 
@@ -156,7 +155,6 @@ export class InventoryRenderer {
       
       const selectedItem = this.selectedIndex < inv.slots.length ? inv.slots[this.selectedIndex] : null;
       
-      // Fixed Reference: Relocated button generator execution to ItemPreviewLayout module
       ItemPreviewLayout.addPanelButtons(list, selectedItem, panelX, panelY, panelW, panelH, inv, g);
     }
   }

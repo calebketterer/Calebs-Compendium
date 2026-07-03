@@ -24,20 +24,23 @@ export class DiepInputService {
 
   public handleKeyDown(event: KeyboardEvent, drawCallback: () => void, gameLoopCallback: () => void) {
     const key = event.key.toLowerCase();
+    
+    // FIXED: Store both exact and lowered keys to safely support ArrowKeys and custom structural loops
     this.gameEngine.keys[key] = true;
+    this.gameEngine.keys[event.key] = true;
 
     // Block standard scrolling browser actions when inside active engine sandboxes
     if (
       this.gameEngine.showingQuadrivium || 
       this.gameEngine.showingAchievements || 
-      this.gameEngine.currentMode === 'SHOP'
+      this.gameEngine.currentMode === 'MARKET'
     ) {
       if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', ' '].includes(key)) {
         event.preventDefault();
       }
     }
 
-    // Fixed: Allowed global pause triggering for both ARENA and SHOP play loops cleanly
+    // Fixed: Allowed global pause triggering for both ARENA and MARKET play loops cleanly
     if (key === 'p' || key === ' ') {
       const wasPaused = this.gameEngine.togglePause();
       drawCallback();
@@ -54,7 +57,9 @@ export class DiepInputService {
   }
 
   public handleKeyUp(event: KeyboardEvent) {
+    // FIXED: Clear both entries on release to keep input dictionaries in sync
     this.gameEngine.keys[event.key.toLowerCase()] = false;
+    this.gameEngine.keys[event.key] = false;
   }
 
   public handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement) {

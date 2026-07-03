@@ -9,7 +9,7 @@ import { DiepCollectionMenu } from '../main-menu/collection/collection-menu';
 import { DiepMainMenu } from '../main-menu/diep.main-menu';
 import { DiepPauseOverlay } from '../overlays/pause-overlay';
 import { DiepGameOverOverlay } from '../overlays/game-over-overlay';
-import { DiepShopOverlay } from '../overlays/shop-overlay'; 
+import { MarketOverlay } from '../overlays/market-overlay'; 
 import { DiepHealthBarRenderer } from '../hud/diep.health-bar-renderer';
 import { DiepUpgradeMenuRenderer } from '../hud/upgrade-menu/diep.upgrade-menu-renderer';
 import { DiepPlayerService } from '../../engine/subsystems/player/diep.player.service';
@@ -60,8 +60,8 @@ export class DiepInteractionService {
       activeButtons = DiepPauseOverlay.getButtons(g, width, height);
     } else if (g.gameOver && !g.gameOverService.isAnimationActive()) {
       activeButtons = DiepGameOverOverlay.getButtons(g, width, height);
-    } else if (g.currentMode === 'SHOP' && !g.isPaused) {
-      activeButtons = DiepShopOverlay.getButtons(g, width, height);
+    } else if (g.currentMode === 'MARKET' && !g.isPaused) {
+      activeButtons = MarketOverlay.getButtons(g, width, height);
     }
 
     if (g.currentMode === 'ARENA' && g.isGameStarted && !g.isPaused && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements && !g.showingCollection) {

@@ -1,6 +1,7 @@
-// src/app/diep/ui/main-menu/collection/collection-header-renderer.ts
-import { DiepButton } from '../../../core/diep.interfaces';
-import { EquippedSlotsRenderer } from './equipped-slots-renderer';
+// src/app/diep/ui/main-menu/collection/header/collection-header.renderer.ts
+import { DiepButton } from '../../../../core/diep.interfaces';
+import { EquippedSlotsRenderer } from './equipped-slots.renderer';
+import { DiepPixelCounterRenderer } from '../../../diep.pixel-counter.renderer';
 
 export class CollectionHeaderRenderer {
   public static render(ctx: CanvasRenderingContext2D, g: any, width: number, buttons: DiepButton[]): void {
@@ -24,37 +25,12 @@ export class CollectionHeaderRenderer {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.fillText('Manage your discovered items, body modifications, and upgrade cards', 50, 85);
 
-    // 2. Right-Aligned Balance Box Dimensions
-    const pixelAmountText = `${inv.pixels}`;
-    ctx.font = 'bold 16px Inter, sans-serif';
-    const textW = ctx.measureText(pixelAmountText).width;
-    
-    const boxGap = 10;
-    const diamondSize = 12;
-    const paddingX = 18;
-    const boxW = textW + boxGap + diamondSize + (paddingX * 2);
-    const boxH = 38; 
+    // 2. Right-Aligned Balance Box Dimensions using shared Renderer
+    const boxW = DiepPixelCounterRenderer.calculateWidth(ctx, g.pixelsService);
     const boxX = width - boxW - 50;
     const boxY = 38;
     
-    ctx.strokeStyle = '#2980b9';
-    ctx.lineWidth = 2;
-    ctx.fillStyle = 'rgba(52, 152, 219, 0.1)';
-    ctx.beginPath();
-    ctx.roundRect(boxX, boxY, boxW, boxH, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#3498db';
-    ctx.textAlign = 'left';
-    ctx.fillText(pixelAmountText, boxX + paddingX, 63);
-
-    ctx.save();
-    ctx.translate(boxX + paddingX + textW + boxGap + (diamondSize / 2), 56);
-    ctx.rotate(Math.PI / 4);
-    ctx.fillStyle = '#3498db';
-    ctx.fillRect(-6, -6, diamondSize, diamondSize);
-    ctx.restore();
+    DiepPixelCounterRenderer.draw(ctx, g.pixelsService, boxX, boxY);
 
     // 3. Delegate Equipment Sub-Panel Layout cleanly relative to the currency bounding box
     const eqSlotSize = 38; 
@@ -66,12 +42,11 @@ export class CollectionHeaderRenderer {
   }
 
   public static addButtons(list: DiepButton[], g: any, width: number): void {
-    const player = g.playerService?.player;
-    const inv = player?.inventory;
-    const pixelAmountText = inv ? `${inv.pixels}` : '0';
+    // Instantiate the temporary context harness BEFORE using it for metric lookups
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
     
-    const textW = pixelAmountText.length * 7.5;
-    const boxW = textW + 10 + 12 + (18 * 2);
+    const boxW = DiepPixelCounterRenderer.calculateWidth(ctx, g.pixelsService);
     const boxX = width - boxW - 50;
 
     const eqSlotSize = 38;

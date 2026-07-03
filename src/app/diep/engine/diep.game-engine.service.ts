@@ -16,7 +16,9 @@ import { AchievementService } from '../core/diep.achievement.service';
 import { HighScoresService } from '../core/diep.high-scores.service';
 import { EnemySpawnerService } from '../enemies/diep.enemy-spawner';
 import { DiepStatsService } from '../core/diep.stats.service';
-import { DiepShopManagerService } from './subsystems/shop/shop.manager';
+import { MarketManagerService } from './subsystems/market/market.manager';
+import { DiepPixelsService } from '../core/diep.pixels.service';
+import { MarketCameraSystem } from './subsystems/market/market-camera.system';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -42,7 +44,7 @@ export class DiepGameEngineService {
     public isGameStarted = false;
     public topScores: HighScore[] = [];
 
-    public currentMode: 'MENU' | 'ARENA' | 'SHOP' = 'MENU';
+    public currentMode: 'MENU' | 'ARENA' | 'MARKET' = 'MENU';
     public currentDifficulty: DifficultyMode = 'MEDIUM';
     public persistentXp = 0;
 
@@ -68,7 +70,9 @@ export class DiepGameEngineService {
         public arenaReset: DiepArenaResetService,
         public gameOverService: DiepGameOverService,
         public diepStatsService: DiepStatsService,
-        public shopManagerService: DiepShopManagerService
+        public marketManagerService: MarketManagerService,
+        public pixelsService: DiepPixelsService,
+        public marketCameraSystem: MarketCameraSystem
     ) {
         this.playerService.initializePlayer(this.currentDifficulty, this.persistentXp);
         this.topScores = this.highScoresService.getHighScores();
@@ -110,8 +114,8 @@ export class DiepGameEngineService {
         const F = DiepTimeManager.gameTick;
         this.arenaReset.updateTransition();
 
-        if (this.currentMode === 'SHOP') {
-            this.shopManagerService.updateShop(this, F, DiepTimeManager.gameMs);
+        if (this.currentMode === 'MARKET') {
+            this.marketManagerService.updateMarket(this, F, DiepTimeManager.gameMs);
         } else {
             for (const system of this.systems) {
                 system.update(this, F, DiepTimeManager.gameMs);
@@ -133,7 +137,7 @@ export class DiepGameEngineService {
         return this.isPaused; 
     }
 
-    public enterShopMode(): void {
-        this.shopManagerService.transitionToShop(this);
+    public enterMarketMode(): void {
+        this.marketManagerService.transitionToMarket(this);
     }
 }
