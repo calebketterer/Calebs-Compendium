@@ -35,10 +35,10 @@ export class DiepInteractionService {
 
     const isGameplayMode = g.currentMode === 'ARENA' || g.currentMode === 'SECTORS' || g.currentMode === 'MARKET';
 
-    // 1. Pause Button Hit Test (Active across all gameplay modes)
+    // 1. Pause Button Circular Hit Test (Radius: 20px at center-top)
     if (isGameplayMode && g.isGameStarted && !g.gameOver && !g.showingQuadrivium && !g.showingAchievements && !g.showingCollection) {
       const dist = Math.sqrt(Math.pow(mouseX - width / 2, 2) + Math.pow(mouseY - 35, 2));
-      if (dist < 20) {
+      if (dist <= 20) {
         const wasPaused = g.togglePause();
         if (!wasPaused) gameLoopCallback();
         return true;
