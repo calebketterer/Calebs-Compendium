@@ -19,6 +19,8 @@ import { DiepStatsService } from '../core/diep.stats.service';
 import { MarketManagerService } from './subsystems/market/market.manager';
 import { DiepPixelsService } from '../core/diep.pixels.service';
 import { MarketCameraSystem } from './subsystems/market/market-camera.system';
+import { SectorsManagerService } from './subsystems/sectors/sectors.manager';
+import { SectorsResetService } from './subsystems/sectors/sectors.reset';
 
 @Injectable({ providedIn: 'root' })
 export class DiepGameEngineService {
@@ -44,7 +46,7 @@ export class DiepGameEngineService {
     public isGameStarted = false;
     public topScores: HighScore[] = [];
 
-    public currentMode: 'MENU' | 'ARENA' | 'MARKET' = 'MENU';
+    public currentMode: 'MENU' | 'ARENA' | 'MARKET' | 'SECTORS' = 'MENU';
     public currentDifficulty: DifficultyMode = 'MEDIUM';
     public persistentXp = 0;
 
@@ -68,6 +70,8 @@ export class DiepGameEngineService {
         public arenaManager: DiepArenaManager,
         public hazardDirector: DiepFloorDirector,
         public arenaReset: DiepArenaResetService,
+        public sectorsManager: SectorsManagerService,
+        public sectorsReset: SectorsResetService,
         public gameOverService: DiepGameOverService,
         public diepStatsService: DiepStatsService,
         public marketManagerService: MarketManagerService,
@@ -113,9 +117,23 @@ export class DiepGameEngineService {
     public update() {
         const F = DiepTimeManager.gameTick;
         this.arenaReset.updateTransition();
+        this.sectorsReset.updateTransition();
 
         if (this.currentMode === 'MARKET') {
             this.marketManagerService.updateMarket(this, F, DiepTimeManager.gameMs);
+        } else if (this.currentMode === 'SECTORS') {
+            this.sectorsManager.update(this, F, DiepTimeManager.gameMs);
+            
+            // Run core systems (player, projectiles, collisions, enemies, game over)
+            for (const system of this.systems) {
+                if (system !== this.arenaManager) { // Exclude standard arena hazard floor manager
+                    system.update(this, F, DiepTimeManager.gameMs);
+                }
+            }
+
+            if (this.isGameStarted && !this.isPaused && !this.gameOver) {
+                this.diepStatsService.trackTime(DiepTimeManager.gameMs / 1000);
+            }
         } else {
             for (const system of this.systems) {
                 system.update(this, F, DiepTimeManager.gameMs);

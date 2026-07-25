@@ -2,6 +2,7 @@
 import { Player } from '../core/diep.interfaces';
 import { DiepWorldRenderer } from './diep.arena-renderer';
 import { DiepHudRenderer } from './hud/diep.hud-renderer';
+import { SectorsRenderer } from '../engine/subsystems/sectors/sectors.renderer';
 
 export class DiepSceneSelector {
   /**
@@ -18,6 +19,10 @@ export class DiepSceneSelector {
       case 'ARENA':
         DiepWorldRenderer.renderWorld(ctx, g, player, width, height);
         DiepHudRenderer.draw(ctx, g, player, width, height);
+        break;
+
+      case 'SECTORS':
+        SectorsRenderer.renderSectors(ctx, g, player, width, height);
         break;
 
       case 'MENU':

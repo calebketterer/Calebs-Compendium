@@ -63,7 +63,7 @@ export class DiepMainMenu {
         color: '#e67e22', 
         borderColor: '#d35400', 
         hoverEffect: 'grow', 
-        action: () => { g.currentMode = 'SECTORS'; g.arenaReset.startNewGame(g); } 
+        action: () => { g.currentMode = 'SECTORS'; g.sectorsReset.startNewGame(g); } 
       },
       { 
         id: 'start-btn', 
