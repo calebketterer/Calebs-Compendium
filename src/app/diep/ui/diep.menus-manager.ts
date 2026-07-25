@@ -35,5 +35,9 @@ export class DiepMenus {
     if (g.arenaReset.transition) {
       g.arenaReset.transition.draw(ctx, width, height);
     }
+
+    if (g.sectorsReset.transition) {
+      g.sectorsReset.transition.draw(ctx, width, height);
+    }
   }
 }

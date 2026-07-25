@@ -1,5 +1,3 @@
-// src/app/diep/ui/main-menu/diep.main-menu.ts
-import { isDevMode } from '@angular/core';
 import { DiepButton } from '../../core/diep.interfaces';
 import { DiepDynamicTitle } from './diep.dynamic-title';
 import { DiepTipsManager } from './diep.tips-manager';
@@ -51,69 +49,19 @@ export class DiepMainMenu {
     const centerY = height / 2;
     const isActive = g.hazardDirector?.enabled === true;
 
-    const buttonList: DiepButton[] = [
+    return [
       // Top Row - Primary Mode Actions (Width: 190 each, Side-by-Side)
-      { 
-        id: 'sectors-btn', 
-        label: 'ENTER SECTORS', 
-        x: centerX - 200, 
-        y: centerY + 20, 
-        w: 190, 
-        h: 50, 
-        color: '#e67e22', 
-        borderColor: '#d35400', 
-        hoverEffect: 'grow', 
-        action: () => { g.currentMode = 'SECTORS'; g.sectorsReset.startNewGame(g); } 
-      },
-      { 
-        id: 'start-btn', 
-        label: 'ENTER ARENA', 
-        x: centerX + 10, 
-        y: centerY + 20, 
-        w: 190, 
-        h: 50, 
-        color: '#2ecc71', 
-        borderColor: '#27ae60', 
-        hoverEffect: 'grow', 
-        action: () => { g.currentMode = 'ARENA'; g.arenaReset.startNewGame(g); } 
-      },
+      { id: 'sectors-btn', label: 'ENTER SECTORS', x: centerX - 200, y: centerY + 20, w: 190, h: 50, color: '#e67e22', borderColor: '#d35400', hoverEffect: 'grow', action: () => { g.currentMode = 'SECTORS'; g.sectorsReset.startNewGame(g); } },
+      { id: 'start-btn', label: 'ENTER ARENA', x: centerX + 10, y: centerY + 20, w: 190, h: 50, color: '#2ecc71', borderColor: '#27ae60', hoverEffect: 'grow', action: () => { g.currentMode = 'ARENA'; g.arenaReset.startNewGame(g); } },
 
       // Bottom Row - Secondary Menus (Width: 190 each, Side-by-Side)
-      { 
-        id: 'quadrivium-btn', 
-        label: 'QUADRIVIUM', 
-        x: centerX - 200, 
-        y: centerY + 90, 
-        w: 190, 
-        h: 50, 
-        color: '#9b59b6', 
-        borderColor: '#7c4592', 
-        hoverEffect: 'grow', 
-        action: () => g.arenaReset.transition.fadeOut(() => g.showingQuadrivium = true) 
-      },
-      { 
-        id: 'achievements-btn', 
-        label: 'ACHIEVEMENTS', 
-        x: centerX + 10, 
-        y: centerY + 90, 
-        w: 190, 
-        h: 50, 
-        color: '#f1c40f', 
-        borderColor: '#f39c12', 
-        hoverEffect: 'grow', 
-        action: () => g.arenaReset.transition.fadeOut(() => g.showingAchievements = true) 
-      }
+      { id: 'quadrivium-btn', label: 'QUADRIVIUM', x: centerX - 200, y: centerY + 90, w: 190, h: 50, color: '#9b59b6', borderColor: '#7c4592', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingQuadrivium = true) },
+      { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: centerX + 10, y: centerY + 90, w: 190, h: 50, color: '#f1c40f', borderColor: '#f39c12', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingAchievements = true) },
+
+      // Utility Buttons
+      { id: 'market-btn', label: 'M', x: centerX - 265, y: centerY + 90, w: 50, h: 50, color: '#1abc9c', borderColor: '#16a085', hoverEffect: 'grow', action: () => g.enterMarketMode() },
+      { id: 'collection-btn', label: 'C', x: centerX + 215, y: centerY + 90, w: 50, h: 50, color: '#3498db', borderColor: '#2980b9', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingCollection = true) },
+      { id: 'arena-toggle-btn', label: '', x: centerX + 215, y: centerY + 25, w: 40, h: 40, color: '#1a1a1a', borderColor: isActive ? '#3498db' : '#444', action: () => DiepSettingsManager.toggleArena(g) }
     ];
-
-    // Surface Market, Collection, and Dynamic Arena Toggle only in local dev builds
-    if (isDevMode()) {
-      buttonList.push(
-        { id: 'market-btn', label: 'M', x: centerX - 265, y: centerY + 90, w: 50, h: 50, color: '#1abc9c', borderColor: '#16a085', hoverEffect: 'grow', action: () => g.enterMarketMode() },
-        { id: 'collection-btn', label: 'C', x: centerX + 215, y: centerY + 90, w: 50, h: 50, color: '#3498db', borderColor: '#2980b9', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingCollection = true) },
-        { id: 'arena-toggle-btn', label: '', x: centerX + 215, y: centerY + 25, w: 40, h: 40, color: '#1a1a1a', borderColor: isActive ? '#3498db' : '#444', action: () => DiepSettingsManager.toggleArena(g) }
-      );
-    }
-
-    return buttonList;
   }
 }
