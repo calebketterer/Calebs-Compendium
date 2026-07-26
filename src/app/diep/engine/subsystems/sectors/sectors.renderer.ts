@@ -1,11 +1,14 @@
+// src/app/diep/engine/subsystems/sectors/sectors.renderer.ts
 import { Player } from '../../../core/diep.interfaces';
 import { FactionColor, FACTION_COLOR_HEX } from './sectors.interfaces';
 import { DiepWorldRenderer } from '../../../ui/diep.arena-renderer';
 import { DiepHudRenderer } from '../../../ui/hud/diep.hud-renderer';
 import { SectorsDecorDirector } from './structures/sectors.decor-director';
+import { SectorsDoorRenderer } from './structures/sectors.door-renderer';
 
 export class SectorsRenderer {
   private static decorDirector = new SectorsDecorDirector();
+  private static doorRenderer = new SectorsDoorRenderer();
 
   /**
    * Renders the complete Sectors game mode scene using authentic Diep visual styling.
@@ -49,27 +52,31 @@ export class SectorsRenderer {
       const visibleEnemies = g.gameOverService?.getAnimationEnemies(g.enemies || []) || (g.enemies || []);
       const groundEnemies = visibleEnemies.filter((e: any) => !e.isFlying);
 
-      // Draw Ground Enemies, Player, and Bullets with full barrels, health bars & strokes
       DiepWorldRenderer.drawEnemiesWithBars(ctx, groundEnemies, player, g.bullets || []);
       DiepWorldRenderer.drawPlayer(ctx, player, g.gameOver);
       DiepWorldRenderer.drawBullets(ctx, g.bullets || []);
     }
 
-    // 3. Sector Outer Perimeter Walls & Doors
+    // 3. Doors & Sector Room Decor (Layered BELOW perimeter border)
+    if (room && director) {
+      this.doorRenderer.drawRoomDoors(
+        ctx,
+        room,
+        director.rooms,
+        director.getNeighborCoords.bind(director),
+        width,
+        height
+      );
+
+      this.decorDirector.drawRoomStructures(ctx, room, width, height);
+    }
+
+    // 4. Outer Perimeter Border Line (Layered OVER doors & decor)
     ctx.strokeStyle = factionHex;
     ctx.lineWidth = 6;
     ctx.strokeRect(3, 3, width - 6, height - 6);
 
-    if (room && director) {
-      this.decorDirector.drawRoomStructures(
-        ctx,
-        room,
-        director.rooms,
-        director.getNeighborCoords.bind(director)
-      );
-    }
-
-    // 4. Flying Layer (Enemies over walls/doors)
+    // 5. Flying Layer
     if (g.isGameStarted || g.gameOver) {
       const visibleEnemies = g.gameOverService?.getAnimationEnemies(g.enemies || []) || (g.enemies || []);
       const flyingEnemies = visibleEnemies.filter((e: any) => e.isFlying);
@@ -78,10 +85,10 @@ export class SectorsRenderer {
       }
     }
 
-    // 5. HUD Overlay
+    // 6. HUD Overlay
     DiepHudRenderer.draw(ctx, g, player, width, height);
 
-    // 6. Sector Coordinates Text Overlay
+    // 7. Sector Coordinates Text Overlay
     const paddingRight = 20;
     const paddingBottom = 40;
 

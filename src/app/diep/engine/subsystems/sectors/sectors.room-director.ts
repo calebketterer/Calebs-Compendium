@@ -61,6 +61,7 @@ export class SectorsRoomDirector {
     const gx = room.gridX;
     const gy = room.gridY;
 
+    // 1. Link back to existing neighboring rooms that have doors pointing here
     ALL_SECTOR_DIRECTIONS.forEach(dir => {
       const oppDir = this.getOppositeDirection(dir);
       const [nx, ny] = this.getNeighborCoords(gx, gy, dir);
@@ -68,12 +69,13 @@ export class SectorsRoomDirector {
 
       if (this.roomsMap.has(neighborKey)) {
         const neighbor = this.roomsMap.get(neighborKey)!;
-        if (neighbor.doors.has(oppDir)) {
+        if (neighbor.doors && neighbor.doors.has(oppDir)) {
           this.addDoor(room, dir);
         }
       }
     });
 
+    // 2. Ensure minimum number of open doors per room
     const distanceFromOrigin = Math.abs(gx) + Math.abs(gy);
     const minDoors = distanceFromOrigin <= 3 ? 2 : 1;
     const randomCount = Math.floor(Math.random() * 4) + 1;
@@ -90,30 +92,17 @@ export class SectorsRoomDirector {
   }
 
   private addDoor(room: SectorRoom, dir: SectorDirection): void {
-    let width = 80;
-    let height = 24;
-    let x = 400;
-    let y = 300;
-    const margin = 20;
-
-    switch (dir) {
-      case 'N':  x = 400; y = margin; width = 80; height = 24; break;
-      case 'S':  x = 400; y = 600 - margin; width = 80; height = 24; break;
-      case 'W':  x = margin; y = 300; width = 24; height = 80; break;
-      case 'E':  x = 800 - margin; y = 300; width = 24; height = 80; break;
-      case 'NW': x = 32; y = 32; width = 44; height = 44; break;
-      case 'NE': x = 800 - 32; y = 32; width = 44; height = 44; break;
-      case 'SW': x = 32; y = 600 - 32; width = 44; height = 44; break;
-      case 'SE': x = 800 - 32; y = 600 - 32; width = 44; height = 44; break;
+    if (!room.doors) {
+      room.doors = new Map();
     }
 
     const door: SectorDoor = {
       direction: dir,
       isOpen: true,
-      x,
-      y,
-      width,
-      height
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0
     };
 
     room.doors.set(dir, door);
@@ -128,15 +117,16 @@ export class SectorsRoomDirector {
   }
 
   public getNeighborCoords(gx: number, gy: number, dir: SectorDirection): [number, number] {
+    // Standard Cartesian orientation: UP = +Y, DOWN = -Y, LEFT = -X, RIGHT = +X
     switch (dir) {
-      case 'N':  return [gx, gy - 1];
-      case 'NE': return [gx + 1, gy - 1];
+      case 'N':  return [gx, gy + 1];
+      case 'NE': return [gx + 1, gy + 1];
       case 'E':  return [gx + 1, gy];
-      case 'SE': return [gx + 1, gy + 1];
-      case 'S':  return [gx, gy + 1];
-      case 'SW': return [gx - 1, gy + 1];
+      case 'SE': return [gx + 1, gy - 1];
+      case 'S':  return [gx, gy - 1];
+      case 'SW': return [gx - 1, gy - 1];
       case 'W':  return [gx - 1, gy];
-      case 'NW': return [gx - 1, gy - 1];
+      case 'NW': return [gx - 1, gy + 1];
     }
   }
 }
