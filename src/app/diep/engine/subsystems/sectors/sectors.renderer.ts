@@ -6,9 +6,23 @@ import { DiepHudRenderer } from '../../../ui/hud/diep.hud-renderer';
 import { SectorsDecorDirector } from './structures/sectors.decor-director';
 import { SectorsDoorRenderer } from './structures/sectors.door-renderer';
 
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+
 export class SectorsRenderer {
   private static decorDirector = new SectorsDecorDirector();
   private static doorRenderer = new SectorsDoorRenderer();
+
+  // Color transition state
+  private static currentRgb: RGB = { r: 52, g: 152, b: 219 }; // Default blue
+  private static targetRgb: RGB = { r: 52, g: 152, b: 219 };
+  private static startRgb: RGB = { r: 52, g: 152, b: 219 };
+  private static transitionStartTime: number = 0;
+  private static readonly TRANSITION_DURATION: number = 300; // ms
+  private static lastFaction: FactionColor | null = null;
 
   /**
    * Renders the complete Sectors game mode scene using authentic Diep visual styling.
@@ -24,15 +38,20 @@ export class SectorsRenderer {
     const room = director?.currentRoom;
 
     const factionKey = (room?.faction ?? 'blue') as FactionColor;
-    const factionHex = FACTION_COLOR_HEX[factionKey] || FACTION_COLOR_HEX.blue;
+    const targetHex = FACTION_COLOR_HEX[factionKey] || FACTION_COLOR_HEX.blue;
+
+    // Update color transition animation state
+    this.updateColorTransition(factionKey, targetHex);
+
+    const activeHex = this.rgbToHex(this.currentRgb);
 
     // 1. Base Dark Grid Background
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw grid lines tinted by current sector faction
+    // Draw grid lines tinted by active smoothly-interpolated color
     ctx.beginPath();
-    ctx.strokeStyle = `${factionHex}33`;
+    ctx.strokeStyle = `rgba(${Math.round(this.currentRgb.r)}, ${Math.round(this.currentRgb.g)}, ${Math.round(this.currentRgb.b)}, 0.2)`;
     ctx.lineWidth = 1;
     const tileSize = 50;
     for (let x = 0; x <= width; x += tileSize) {
@@ -72,7 +91,7 @@ export class SectorsRenderer {
     }
 
     // 4. Outer Perimeter Border Line (Layered OVER doors & decor)
-    ctx.strokeStyle = factionHex;
+    ctx.strokeStyle = activeHex;
     ctx.lineWidth = 6;
     ctx.strokeRect(3, 3, width - 6, height - 6);
 
@@ -98,5 +117,50 @@ export class SectorsRenderer {
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(`FACTION: ${String(factionKey).toUpperCase()}`, width - paddingRight, height - paddingBottom);
     ctx.fillText(`SECTOR: [${room?.gridX ?? 0}, ${room?.gridY ?? 0}]`, width - paddingRight, height - (paddingBottom - 18));
+  }
+
+  /**
+   * Smoothly interpolates the current color towards the target room color over time.
+   */
+  private static updateColorTransition(factionKey: FactionColor, targetHex: string): void {
+    const now = performance.now();
+
+    if (this.lastFaction !== factionKey) {
+      this.lastFaction = factionKey;
+      this.startRgb = { ...this.currentRgb };
+      this.targetRgb = this.hexToRgb(targetHex);
+      this.transitionStartTime = now;
+    }
+
+    const elapsed = now - this.transitionStartTime;
+    const progress = Math.min(1, Math.max(0, elapsed / this.TRANSITION_DURATION));
+
+    // Smooth step easing (easeInOutQuad)
+    const easedProgress = progress < 0.5 
+      ? 2 * progress * progress 
+      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+    this.currentRgb = {
+      r: this.startRgb.r + (this.targetRgb.r - this.startRgb.r) * easedProgress,
+      g: this.startRgb.g + (this.targetRgb.g - this.startRgb.g) * easedProgress,
+      b: this.startRgb.b + (this.targetRgb.b - this.startRgb.b) * easedProgress,
+    };
+  }
+
+  private static hexToRgb(hex: string): RGB {
+    const cleanHex = hex.replace('#', '');
+    const bigint = parseInt(cleanHex, 16);
+    return {
+      r: (bigint >> 16) & 255,
+      g: (bigint >> 8) & 255,
+      b: bigint & 255,
+    };
+  }
+
+  private static rgbToHex(rgb: RGB): string {
+    const r = Math.round(rgb.r).toString(16).padStart(2, '0');
+    const g = Math.round(rgb.g).toString(16).padStart(2, '0');
+    const b = Math.round(rgb.b).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
   }
 }
