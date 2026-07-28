@@ -4,10 +4,10 @@ export type SectorDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
 
 export const ALL_SECTOR_DIRECTIONS: SectorDirection[] = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
-export type FactionColor = 'safe' | 'orange' | 'yellow' | 'green' | 'red' | 'blue' | 'purple';
+export type FactionColor = 'neutral' | 'orange' | 'yellow' | 'green' | 'red' | 'blue' | 'purple';
 
 export const FACTION_COLOR_HEX: Record<FactionColor, string> = {
-  safe: '#2ecc71',
+  neutral: '#d2d3d2',
   orange: '#e67e22',
   yellow: '#f1c40f',
   green: '#27ae60',
