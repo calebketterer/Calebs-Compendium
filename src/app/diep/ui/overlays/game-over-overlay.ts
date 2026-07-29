@@ -29,7 +29,13 @@ export class DiepGameOverOverlay {
         color: '#2ecc71', borderColor: '#27ae60',
         fontSize: 'bold 30px Inter, sans-serif',
         hoverEffect: 'grow',
-        action: () => g.arenaReset.restartGame(g)
+        action: () => {
+          if (g.currentMode === 'SECTORS') {
+            g.sectorsReset.startNewGame(g);
+          } else {
+            g.arenaReset.restartGame(g);
+          }
+        }
       },
       {
         id: 'main-menu-gameover-btn',
