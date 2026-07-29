@@ -3,13 +3,17 @@ import { Injectable } from '@angular/core';
 import { GameSystem } from '../../../core/diep.interfaces';
 import { SectorsRoomDirector } from './sectors.room-director';
 import { SectorDirection } from './sectors.interfaces';
+import { SectorsEnemySpawnerService } from './sectors.enemy-spawner';
 
 @Injectable({ providedIn: 'root' })
 export class SectorsManagerService implements GameSystem {
   public showDebugMap = false;
-  private transitionCooldown = 0; // Prevent instant bounce loops
+  private transitionCooldown = 0;
 
-  constructor(public roomDirector: SectorsRoomDirector) {}
+  constructor(
+    public roomDirector: SectorsRoomDirector,
+    private sectorsSpawner: SectorsEnemySpawnerService
+  ) {}
 
   public init(width: number, height: number): void {
     this.roomDirector.reset();
@@ -23,28 +27,51 @@ export class SectorsManagerService implements GameSystem {
       this.transitionCooldown -= ms;
     }
 
+    const currentRoom = this.roomDirector.currentRoom;
+
+    // Sync active room enemy array with engine's active enemy list
+    if (engine.enemies.length === 0 && !(currentRoom.gridX === 0 && currentRoom.gridY === 0)) {
+      currentRoom.isCleared = true;
+      currentRoom.enemies = [];
+    } else {
+      currentRoom.enemies = engine.enemies;
+    }
+
+    // Tick background respawns for ALL discovered rooms
+    this.roomDirector.rooms.forEach((room) => {
+      const isCurrent = room.gridX === this.roomDirector.currentGridX && 
+                        room.gridY === this.roomDirector.currentGridY;
+      
+      // Update background rooms only (isCurrent = true will strictly block active room spawns)
+      this.sectorsSpawner.updateRespawns(engine, room, ms, isCurrent);
+    });
+
     const player = engine.playerService?.player;
     if (!player) return;
 
     if (this.transitionCooldown <= 0) {
-      this.checkDoorTransitions(player, engine.width, engine.height);
+      this.checkDoorTransitions(engine, player, engine.width, engine.height);
     }
   }
 
-  private checkDoorTransitions(player: any, width: number, height: number): void {
+  private checkDoorTransitions(engine: any, player: any, width: number, height: number): void {
     const room = this.roomDirector.currentRoom;
 
     room.doors.forEach((door) => {
       if (!door.isOpen) return;
 
       const dist = Math.hypot(player.x - door.x, player.y - door.y);
-      if (dist < 35) { // Touch radius
-        this.transitionToRoom(player, door.direction, width, height);
+      if (dist < 35) {
+        this.transitionToRoom(engine, player, door.direction, width, height);
       }
     });
   }
 
-  private transitionToRoom(player: any, dir: SectorDirection, width: number, height: number): void {
+  private transitionToRoom(engine: any, player: any, dir: SectorDirection, width: number, height: number): void {
+    const currentRoom = this.roomDirector.currentRoom;
+
+    this.sectorsSpawner.saveRoomState(currentRoom, engine.enemies);
+
     const [nx, ny] = this.roomDirector.getNeighborCoords(
       this.roomDirector.currentGridX, 
       this.roomDirector.currentGridY, 
@@ -54,18 +81,24 @@ export class SectorsManagerService implements GameSystem {
     this.roomDirector.currentGridX = nx;
     this.roomDirector.currentGridY = ny;
 
-    // Set cooldown (500ms) to prevent re-triggering upon spawning in the new room
-    this.transitionCooldown = 500;
+    const newRoom = this.roomDirector.currentRoom;
 
-    // Reposition player at the entrance of the opposite door
+    this.transitionCooldown = 500;
+    engine.bullets = [];
+
+    engine.enemies = this.sectorsSpawner.loadOrSpawnRoomEnemies(
+      engine.enemies,
+      newRoom,
+      width,
+      height
+    );
+
     const oppDir = this.roomDirector.getOppositeDirection(dir);
     this.repositionPlayerAtDoor(player, oppDir, width, height);
-
-    console.log(`[SECTORS] Entered Room (${nx}, ${ny}) - Faction: ${this.roomDirector.currentRoom.faction}`);
   }
 
   private repositionPlayerAtDoor(player: any, entryDoorDir: SectorDirection, width: number, height: number): void {
-    const margin = 80; // Pushes player safe distance away from door trigger
+    const margin = 80;
     switch (entryDoorDir) {
       case 'N':  player.x = width / 2; player.y = margin; break;
       case 'NE': player.x = width - margin; player.y = margin; break;

@@ -8,6 +8,20 @@ import {
   SectorDoor 
 } from './sectors.interfaces';
 
+/**
+ * Configure the weight/probability of each faction color when generating a new room.
+ * Values act as relative weights (e.g. weight 30 out of 100 total weight = 30% chance).
+ */
+export const FACTION_ROOM_WEIGHTS: Record<FactionColor, number> = {
+  neutral: 0,
+  blue:    5,
+  yellow:  7,
+  orange:  22,
+  green:   22,
+  red:     22,
+  purple:  22,
+};
+
 @Injectable({ providedIn: 'root' })
 export class SectorsRoomDirector {
   private roomsMap: Map<string, SectorRoom> = new Map();
@@ -36,7 +50,8 @@ export class SectorsRoomDirector {
     }
 
     const isStartRoom = gx === 0 && gy === 0;
-    const faction: FactionColor = isStartRoom ? 'blue' : this.getRandomFaction();
+    const distanceFromOrigin = Math.abs(gx) + Math.abs(gy);
+    const faction: FactionColor = isStartRoom ? 'blue' : this.getRandomFaction(distanceFromOrigin);
 
     const room: SectorRoom = {
       gridX: gx,
@@ -52,9 +67,27 @@ export class SectorsRoomDirector {
     return room;
   }
 
-  private getRandomFaction(): FactionColor {
-    const factions: FactionColor[] = ['orange', 'yellow', 'green', 'red', 'purple'];
-    return factions[Math.floor(Math.random() * factions.length)];
+  private getRandomFaction(distanceFromOrigin: number): FactionColor {
+    // Optional: Copy default weights and apply distance scaling if desired
+    const weights: Record<FactionColor, number> = { ...FACTION_ROOM_WEIGHTS };
+
+    // Example distance scaling: boost harder colors (red/purple) further out
+    if (distanceFromOrigin > 4) {
+      weights.red += 15;
+      weights.purple += 15;
+    }
+
+    const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+    let randomRoll = Math.random() * totalWeight;
+
+    for (const [factionKey, weight] of Object.entries(weights)) {
+      if (randomRoll < weight) {
+        return factionKey as FactionColor;
+      }
+      randomRoll -= weight;
+    }
+
+    return 'neutral';
   }
 
   private generateDoorsForRoom(room: SectorRoom): void {

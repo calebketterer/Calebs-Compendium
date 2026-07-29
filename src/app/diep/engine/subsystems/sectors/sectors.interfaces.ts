@@ -1,4 +1,5 @@
 // src/app/diep/engine/subsystems/sectors/sectors.interfaces.ts
+import { Enemy } from '../../../core/diep.interfaces';
 
 export type SectorDirection = 'N' | 'NE' | 'E' | 'SE' | 'S' | 'SW' | 'W' | 'NW';
 
@@ -32,4 +33,5 @@ export interface SectorRoom {
   isCleared: boolean;
   doors: Map<SectorDirection, SectorDoor>;
   discovered: boolean;
+  enemies?: Enemy[];
 }
