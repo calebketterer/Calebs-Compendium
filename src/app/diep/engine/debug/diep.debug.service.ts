@@ -1,4 +1,3 @@
-// src/app/diep/engine/debug/diep.debug.service.ts
 import { Injectable, isDevMode } from '@angular/core';
 import { DiepGameEngineService } from '../diep.game-engine.service';
 import { DiepAchievementToastRenderer } from '../../ui/hud/diep.achievement-toast';
@@ -56,19 +55,16 @@ export class DiepDebugService {
       cam.setMode('DETACHED');
       cam.scale = 1.0;
       console.log('[DEBUG] Camera State: DETACHED MOVEMENT MODE (Use Arrow Keys to pan viewport boundaries)');
-      this.notify('DEBUG', 'CAM: DETACHED CONTROL');
     } else if (cam.currentMode === 'DETACHED') {
       // 2nd Press: Full Map Overview Zoom
       // FIXED: Invoking the unified camera method instead of doing math leaks inside the debug pipeline
       cam.setToFullMapOverview(this.gameEngine.width, this.gameEngine.height);
       console.log(`[DEBUG] Camera State: FULL MAP OVERVIEW (Dynamic Scale: ${cam.scale.toFixed(3)})`);
-      this.notify('DEBUG', 'CAM: FULL MAP ZOOM');
     } else {
       // 3rd Press: Revert back to Standard Tracking
       cam.setMode('PLAYER');
       cam.scale = 1.0;
       console.log('[DEBUG] Camera State: PLAYER TRACKING RESET');
-      this.notify('DEBUG', 'CAM: PLAYER TRACKING RESET');
     }
   }
 
