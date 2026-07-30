@@ -1,22 +1,7 @@
-// src/app/diep/engine/subsystems/sectors/sectors.enemy-spawner.ts
 import { Injectable } from '@angular/core';
 import { Enemy, EnemyType } from '../../../core/diep.interfaces';
 import { EnemyRegistry } from '../../../enemies/enemy.registry';
 import { FactionColor, SectorRoom } from './sectors.interfaces';
-
-/**
- * Configure spawn weights per room faction color.
- * Higher values = higher relative probability of spawning that enemy type in that room color.
- */
-export const FACTION_SPAWN_WEIGHTS: Record<FactionColor, Partial<Record<EnemyType, number>>> = {
-  neutral: { ROLLER: 70, CRASHER: 30 },
-  orange:  { ROLLER: 40, BOMBER: 30, DETONATOR: 30 },
-  yellow:  { ROLLER: 30, SNIPER: 40, BLASTER: 30 },
-  green:   { ROLLER: 30, HEALER: 40, MEDIC: 30 },
-  red:     { ROLLER: 20, SMASHER: 40, BLOATER: 40 },
-  blue:    { ROLLER: 30, FLOATER: 40, GUNNER: 30 },
-  purple:  { ROLLER: 20, CASTER: 40, HAUNTER: 40 }
-};
 
 interface RoomRespawnState {
   timer: number;
@@ -169,25 +154,12 @@ export class SectorsEnemySpawnerService {
       return meta && meta.faction && meta.faction.toLowerCase() === faction.toLowerCase();
     });
 
-    const candidateTypes = factionMatchingTypes.length > 0 ? factionMatchingTypes : allTypes;
-    const weightsConfig = FACTION_SPAWN_WEIGHTS[faction] || {};
-
-    const weightedEntries = candidateTypes.map(type => ({
-      type,
-      weight: weightsConfig[type] ?? 10
-    }));
-
-    const totalWeight = weightedEntries.reduce((sum, item) => sum + item.weight, 0);
-    let roll = Math.random() * totalWeight;
-
-    for (const entry of weightedEntries) {
-      if (roll < entry.weight) {
-        return entry.type;
-      }
-      roll -= entry.weight;
+    if (factionMatchingTypes.length === 0) {
+      return 'ROLLER';
     }
 
-    return candidateTypes[0] || 'ROLLER';
+    const randomIndex = Math.floor(Math.random() * factionMatchingTypes.length);
+    return factionMatchingTypes[randomIndex];
   }
 
   private finalizeEnemySpawn(type: EnemyType, x: number, y: number, outEnemies: Enemy[], w: number, h: number): void {
