@@ -1,10 +1,11 @@
 // src/app/diep/engine/subsystems/sectors/sectors.renderer.ts
 import { Player } from '../../../core/diep.interfaces';
 import { FactionColor, FACTION_COLOR_HEX } from './sectors.interfaces';
-import { DiepWorldRenderer } from '../../../ui/diep.arena-renderer';
+import { DiepWorldRenderer } from '../diep.world-renderer';
 import { DiepHudRenderer } from '../../../ui/hud/diep.hud-renderer';
 import { SectorsDecorDirector } from './structures/sectors.decor-director';
 import { SectorsDoorRenderer } from './structures/sectors.door-renderer';
+import { DiepEntityRenderer } from '../diep.entity-renderer';
 
 interface RGB {
   r: number;
@@ -66,14 +67,14 @@ export class SectorsRenderer {
 
     // 2. Toxic Trails & Ground Layer
     if (g.isGameStarted || g.gameOver) {
-      DiepWorldRenderer.drawToxicTrails(ctx, g.toxicTrails || []);
+      DiepEntityRenderer.drawToxicTrails(ctx, g.toxicTrails || []);
 
       const visibleEnemies = g.gameOverService?.getAnimationEnemies(g.enemies || []) || (g.enemies || []);
       const groundEnemies = visibleEnemies.filter((e: any) => !e.isFlying);
 
       DiepWorldRenderer.drawEnemiesWithBars(ctx, groundEnemies, player, g.bullets || []);
-      DiepWorldRenderer.drawPlayer(ctx, player, g.gameOver);
-      DiepWorldRenderer.drawBullets(ctx, g.bullets || []);
+      DiepEntityRenderer.drawPlayer(ctx, player, g.gameOver);
+      DiepEntityRenderer.drawBullets(ctx, g.bullets || []);
     }
 
     // 3. Doors & Sector Room Decor (Layered BELOW perimeter border)

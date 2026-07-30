@@ -1,5 +1,5 @@
 // src/app/diep/ui/diep.grid-renderer.ts
-import { ArenaTile, TileType } from '../engine/subsystems/arena/arena.manager';
+import { ArenaTile, TileType } from './arena.manager';
 
 export class DiepBackgroundRenderer {
   /**

@@ -1,6 +1,6 @@
 // src/app/diep/ui/diep.scene-selector.ts
 import { Player } from '../core/diep.interfaces';
-import { DiepWorldRenderer } from './diep.arena-renderer';
+import { DiepWorldRenderer } from '../engine/subsystems/diep.world-renderer';
 import { DiepHudRenderer } from './hud/diep.hud-renderer';
 import { SectorsRenderer } from '../engine/subsystems/sectors/sectors.renderer';
 

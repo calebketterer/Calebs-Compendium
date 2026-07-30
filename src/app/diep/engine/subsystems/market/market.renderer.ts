@@ -1,7 +1,8 @@
 // src/app/diep/engine/subsystems/market/market.renderer.ts
 import { Player } from '../../../core/diep.interfaces';
 import { MARKET_NPCS, MarketNpc } from './market-npc.config';
-import { DiepWorldRenderer } from '../../../ui/diep.arena-renderer';
+import { DiepWorldRenderer } from '../diep.world-renderer';
+import { DiepEntityRenderer } from '../diep.entity-renderer';
 
 export class MarketRenderer {
   
@@ -62,8 +63,8 @@ export class MarketRenderer {
 
     // 4. Leverage shared player and entity rendering loops inside translated camera coordinate blocks
     if (g.isGameStarted && player) {
-      DiepWorldRenderer.drawPlayer(ctx, player, g.gameOver);
-      DiepWorldRenderer.drawBullets(ctx, g.bullets);
+      DiepEntityRenderer.drawPlayer(ctx, player, g.gameOver);
+      DiepEntityRenderer.drawBullets(ctx, g.bullets);
     }
 
     // FIXED: Render dynamic overhead/top layer asset components over players and bullets
