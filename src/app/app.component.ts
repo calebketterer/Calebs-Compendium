@@ -1,7 +1,8 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, Renderer2, HostListener } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, Renderer2, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { filter } from 'rxjs/operators';
 
 // Game Components
 import { SudokuComponent } from './sudoku/sudoku.component';
@@ -28,7 +29,7 @@ import { HomeStateService } from './home/home.state.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit {
   messageBoxText = MESSAGE_BOX_DEFAULTS.TEXT;
   messageBoxClass = MESSAGE_BOX_DEFAULTS.CLASS;
 
@@ -43,8 +44,21 @@ export class AppComponent implements AfterViewInit {
   constructor(
     private renderer: Renderer2,
     private uiService: UiEffectsService,
-    public state: HomeStateService 
+    public state: HomeStateService,
+    private router: Router
   ) {}
+
+  ngOnInit(): void {
+    // Listen to route changes to update state on direct links or browser back/forward
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const path = event.urlAfterRedirects.replace('/', '').toLowerCase();
+        if (path && path !== this.state.selectedView) {
+          this.state.updateView(path);
+        }
+      });
+  }
 
   ngAfterViewInit(): void {
     this.updateHeaderGradient(50);
@@ -80,12 +94,9 @@ export class AppComponent implements AfterViewInit {
   onViewChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
     this.state.updateView(val);
+    this.router.navigate([val]);
   }
 
-  /**
-   * Restored to satisfy the HTML template (click) binding.
-   * Logic is offloaded to the state service.
-   */
   toggleOriginalContent(event?: Event): void {
     this.state.toggleContent(this.state.selectedView);
   }

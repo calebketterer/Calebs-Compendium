@@ -9,7 +9,7 @@
         <ng-container *ngTemplateOutlet="eyeToggle"></ng-container>
     </div>
 
-    <div [hidden]="state.selectedView !== 'main-site' && state.isOriginalContentHidden">
+    <div [hidden]="state.selectedView !== 'home' && state.isOriginalContentHidden">
         <div class="content original-content-container mb-8">
             
             <!-- Left Side: Logo and Intro -->
@@ -24,8 +24,8 @@
                 </p>
 
                 <div class="view-selector-container">
-                    <select id="viewSelector" class="view-selector-dropdown" (change)="onViewChange($event)">
-                        <option value="main-site" selected>Main Site Info</option>
+                    <select id="viewSelector" class="view-selector-dropdown" [value]="state.selectedView" (change)="onViewChange($event)">
+                        <option value="home">Home Page</option>
                         <option value="diep">Diep</option>
                         <option value="gwent">Gwent</option> 
                         <option value="snake">Snake</option>
@@ -52,15 +52,10 @@
         </div>
     </div>
 
-    <!-- View Switcher Logic Wrapped for Spacing -->
-    <div class="view-content-wrapper" *ngIf="state.selectedView !== 'main-site'">
-        <app-conway *ngIf="state.selectedView === 'conways-game-of-life'"></app-conway>
-        <app-diep *ngIf="state.selectedView === 'diep'"></app-diep>
-        <app-gwent *ngIf="state.selectedView === 'gwent'"></app-gwent>
-        <app-sudoku *ngIf="state.selectedView === 'sudoku'"></app-sudoku>
-        <app-snake *ngIf="state.selectedView === 'snake'"></app-snake>
-        <app-tetris *ngIf="state.selectedView === 'tetris'"></app-tetris>
-        
+    <!-- View Content Wrapper: Handles single route rendering -->
+    <div class="view-content-wrapper" *ngIf="state.selectedView !== 'home'">
+        <router-outlet></router-outlet>
+
         <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg max-w-xl w-full mt-8" *ngIf="state.selectedView === 'another-view'">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Another View Coming Soon!</h1>
             <p class="text-gray-700 text-center">This is a placeholder for future content.</p>
@@ -68,20 +63,10 @@
     </div>
 </main>
 
-<!-- <app-clicker-overlay 
-    *ngIf="selectedView === 'main-site' && showClickerGame"
-    [displayCount]="globalClickCount"
-    (targetClicked)="handleGlobalClick()">
-</app-clicker-overlay> -->
-
-<router-outlet />
-
-<!-- ========================================== -->
-<!-- REUSABLE TEMPLATES (Logic Chunks)         -->
-<!-- ========================================== -->
+<!-- REUSABLE TEMPLATES -->
 
 <ng-template #eyeToggle>
-    <svg *ngIf="state.selectedView !== 'main-site'"
+    <svg *ngIf="state.selectedView !== 'home'"
         [ngClass]="{'eye-open': !state.isOriginalContentHidden, 'eye-closed': state.isOriginalContentHidden}"
         (click)="toggleOriginalContent($event)" xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 0 24 24" width="30" fill="currentColor">
         <path *ngIf="!state.isOriginalContentHidden" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
@@ -127,7 +112,7 @@
     <div class="social-links">
         <a href="https://github.com/calebketterer" aria-label="Github" target="_blank" rel="noopener">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.3047 0C5.50634 0 0 5.50942 0 12.3047C0 17.7423 3.52529 22.3535 8.41332 23.9787C9.02856 24.0946 9.25414 23.7142 9.25414 23.3871C9.25414 23.0949 9.24389 22.3207 9.24389 21.4332C6.07072 22.1237 5.35461 19.8649 5.35461 19.8649C4.7977 18.4282 3.97044 18.0405 3.97044 18.0405C2.79225 17.2461 4.05794 17.263 4.05794 17.263C5.35823 17.3542 6.01686 18.6013 6.01686 18.6013C7.1705 20.6076 9.04327 20.0912 9.74126 19.7946C9.84475 18.9811 10.1576 18.4434 10.5057 18.1493C7.65773 17.8496 4.66141 16.7792 4.66141 11.9556C4.66141 10.5868 5.1403 9.51465 5.91927 8.67154C5.79588 8.37261 5.3816 7.07349 6.03684 5.43032C6.03684 5.43032 7.03538 5.10733 9.21249 6.5185C10.1639 6.23681 11.1718 6.09626 12.1794 6.09134C13.1875 6.09626 14.196 6.23681 15.1492 6.5185C17.3236 5.10733 18.3198 5.43032 18.3198 5.43032C18.9775 7.07349 18.5639 8.37261 18.4405 8.67154C19.222 9.51465 19.6975 10.5868 19.6975 11.9556C19.6975 16.791 16.6975 17.8468 13.8437 18.1434C14.2928 18.5148 14.6975 19.2875 14.6975 20.3686C14.6975 21.8765 14.6833 23.0359 14.6833 23.3871C14.6833 23.7142 14.904 24.0982 15.5262 23.9787C20.4176 22.3535 23.9474 12.3047 23.9474 12.3047C23.9474 5.50942 18.4411 0 12.3047 0Z"/>
+                <path d="M12.3047 0C5.50634 0 0 5.50942 0 12.3047C0 17.7423 3.52529 22.3535 8.41332 23.9787C9.02856 24.0946 9.25414 23.7142 9.25414 23.3871C9.25414 23.0949 9.24389 22.3207 9.24389 21.4332C6.07072 22.1237 5.35461 19.8649 5.35461 19.8649C4.7977 18.4282 3.97044 18.0405 3.97044 18.0405C2.79225 17.2461 4.05794 17.263 4.05794 17.263C5.35823 17.3542 6.01686 18.6013 6.01686 18.6013C7.1705 20.6076 9.04327 20.0912 9.74126 19.7946C9.84475 18.9811 10.1576 18.4434 10.5057 18.1493C7.65773 17.8496 4.66141 16.7792 4.66141 11.9556C4.66141 10.5868 5.1403 9.51465 5.91927 8.67154C5.79588 8.37261 5.3816 7.07349 6.03684 5.43032C6.03684 5.43032 7.03538 5.10733 9.21249 6.5185C10.1639 6.23681 11.1718 6.09626 12.1794 6.09134C13.1875 6.09626 14.196 6.23681 15.1492 6.5185C17.3236 5.10733 18.3198 5.43032 18.3198 5.43032C18.9775 7.07349 18.5639 8.37261 18.4405 8.67154C19.222 9.51465 19.6975 10.5868 19.6975 11.9556C19.6975 16.791 16.6975 17.8468 13.8437 18.1434C14.2928 18.5148 14.6975 19.2875 14.6975 20.3686C14.6833 21.8765 14.6833 23.0359 14.6833 23.3871C14.6833 23.7142 14.904 24.0982 15.5262 23.9787C20.4176 22.3535 23.9474 12.3047 23.9474 12.3047C23.9474 5.50942 18.4411 0 12.3047 0Z"/>
             </svg>
         </a>
         <a href="https://twitter.com/angular" aria-label="Twitter" target="_blank" rel="noopener">
