@@ -4,11 +4,15 @@ export class DiepTipsManager {
     "Destroy shapes to gain XP and level up.",
     "Certain enemies are deadlier, but destroying them provides more points.",
     "Don't get cornered! Keep moving to survive.",
-    "Each color of enemy has a unique behavior pattern.",
-    "Blue enemies are spectral—watch out for their echoes.",
+    "Each enemy has unique behavior patterns.",
+    "Many orange shapes tend to be explosive- watch out!",
+    "Yellow shapes often operate as medics, healing damaged shapes.",
+    "Green shapes commonly leave behind corrosive trails.",
+    "Some blue shapes spawn spectral pieces—watch out for their echoes.",
     "Double click the title to reset the engine effects.",
     "It's often a good idea to avoid the map's edges.",
-    "Achievements update in real time, even if you return to the main menu."
+    "Achievements update in real time, even if you return to the main menu.",
+    "The Arena is a brutal, endless wave of enemies."
   ];
 
   private static currentTipIndex = 0;

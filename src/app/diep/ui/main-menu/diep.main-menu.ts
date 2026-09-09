@@ -59,8 +59,8 @@ export class DiepMainMenu {
       { id: 'achievements-btn', label: 'ACHIEVEMENTS', x: centerX + 10, y: centerY + 90, w: 190, h: 50, color: '#f1c40f', borderColor: '#f39c12', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingAchievements = true) },
 
       // Utility Buttons
-      { id: 'market-btn', label: 'M', x: centerX - 265, y: centerY + 90, w: 50, h: 50, color: '#1abc9c', borderColor: '#16a085', hoverEffect: 'grow', action: () => g.enterMarketMode() },
-      { id: 'collection-btn', label: 'C', x: centerX + 215, y: centerY + 90, w: 50, h: 50, color: '#3498db', borderColor: '#2980b9', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingCollection = true) },
+      { id: 'market-btn', label: 'M', x: centerX - 265, y: centerY + 90, w: 50, h: 50, color: 'rgba(26, 188, 156, 0.5)', borderColor: 'rgba(22, 160, 132, 0.5)', hoverEffect: 'grow', action: () => g.enterMarketMode() },
+      { id: 'collection-btn', label: 'C', x: centerX + 215, y: centerY + 90, w: 50, h: 50, color: 'rgba(52, 152, 219, 0.5)', borderColor: 'rgba(41, 127, 185, 0.5)', hoverEffect: 'grow', action: () => g.arenaReset.transition.fadeOut(() => g.showingCollection = true) },
       { id: 'arena-toggle-btn', label: '', x: centerX + 215, y: centerY + 25, w: 40, h: 40, color: '#1a1a1a', borderColor: isActive ? '#3498db' : '#444', action: () => DiepSettingsManager.toggleArena(g) }
     ];
   }
