@@ -1,19 +1,12 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, Renderer2, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 
-// Game Components
-import { SudokuComponent } from './sudoku/sudoku.component';
-import { ConwayComponent } from './conway/conway.component';
-import { SnakeComponent } from './snake/snake.component';
-import { TetrisComponent } from './tetris/tetris.component';
-import { DiepComponent } from './diep/diep.component';
+// Clicker Overlay Component
 import { ClickerOverlayComponent } from './clicker-overlay/clicker-overlay.component';
-import { GwentComponent } from './gwent/gwent.component';
 
-// Local Logic & Assets
+// Constants & Services
 import { DEFAULT_COLORS, MESSAGE_BOX_DEFAULTS } from './home/home.constants';
 import { UiEffectsService } from './home/home.ui-effects.service';
 import { HomeStateService } from './home/home.state.service';
@@ -22,9 +15,7 @@ import { HomeStateService } from './home/home.state.service';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, CommonModule, FormsModule, SudokuComponent, 
-    ConwayComponent, SnakeComponent, TetrisComponent, 
-    DiepComponent, ClickerOverlayComponent, GwentComponent
+    RouterOutlet, CommonModule, ClickerOverlayComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -34,9 +25,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   messageBoxClass = MESSAGE_BOX_DEFAULTS.CLASS;
 
   @ViewChild('colorfulHeader', { static: true }) colorfulHeader!: ElementRef<HTMLHeadingElement>;
-  @ViewChild('heyThere', { static: true }) heyThere!: ElementRef<HTMLElement>;
-  @ViewChild('goodNews', { static: true }) goodNews!: ElementRef<HTMLElement>;
-  @ViewChild('Tips', { static: true }) Tips!: ElementRef<HTMLElement>;
 
   private currentColors = [...DEFAULT_COLORS];
   private lastX = 50;
@@ -49,13 +37,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Listen to route changes to update state on direct links or browser back/forward
+    // Listen to route changes to sync HomeStateService state
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const path = event.urlAfterRedirects.replace('/', '').toLowerCase();
-        if (path && path !== this.state.selectedView) {
-          this.state.updateView(path);
+        const currentView = path || 'home';
+        if (currentView !== this.state.selectedView) {
+          this.state.updateView(currentView);
         }
       });
   }
@@ -88,40 +77,5 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.state.handleGlobalClick();
     this.currentColors = this.uiService.getRandomizedColors(DEFAULT_COLORS.length);
     this.updateHeaderGradient(this.lastX);
-  }
-
-  onViewChange(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
-    this.state.updateView(val);
-    this.router.navigate([val]);
-  }
-
-  // --- Shake Logic ---
-
-  shakeHeyThere() {
-    this.state.handleGlobalClick();
-    this.applyShake(this.heyThere.nativeElement);
-  }
-
-  shakeGoodNews() {
-    this.state.handleGlobalClick();
-    this.applyShake(this.goodNews.nativeElement);
-  }
-
-  shakeTips() {
-    this.state.handleGlobalClick();
-    this.state.cycleTip();
-    this.applyShake(this.Tips.nativeElement);
-  }
-
-  private applyShake(element: HTMLElement) {
-    this.renderer.removeClass(element, 'shake');
-    void element.offsetWidth; // trigger reflow
-    this.renderer.addClass(element, 'shake');
-  }
-
-  toggleDirection() {
-    this.state.handleGlobalClick();
-    this.state.reverse = !this.state.reverse;
   }
 }

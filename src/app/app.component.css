@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. VARIABLES & RESET
+   1. GLOBAL VARIABLES & HOST SETUP
    ========================================================================== */
 :host {
     --bright-blue: #0546ff;
@@ -22,20 +22,8 @@
     -webkit-font-smoothing: antialiased;
 }
 
-h1 {
-    font-size: 3.125rem;
-    color: var(--gray-90);
-    font-weight: 500;
-    line-height: 100%;
-    letter-spacing: -0.125rem;
-    margin: 0;
-    font-family: "Inter Tight", sans-serif;
-}
-
-p { margin: 0; color: var(--gray-70); }
-
 /* ==========================================================================
-   2. LAYOUT CONTAINERS
+   2. APP SHELL LAYOUT
    ========================================================================== */
 .main {
     display: flex;
@@ -60,30 +48,15 @@ p { margin: 0; color: var(--gray-70); }
     user-select: none;
 }
 
-.content, .original-content-container {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    max-width: 800px;
-}
-
-.left-side, .right-side {
-    display: flex;
-    flex-direction: column;
-}
-
-.left-side h1 { margin: 1rem 0; }
-.left-side p { margin-bottom: 1rem; }
-
 .view-content-wrapper {
-    margin-top: 2rem; 
+    margin-top: 1rem; 
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
 /* ==========================================================================
-   3. COMPONENT STYLES
+   3. HEADER STYLES & ANIMATIONS
    ========================================================================== */
 .animated-header {
     background: linear-gradient(90deg, #f0060b 0%, #ff41f8 18%, #7702ff 36%, #cc26d5 54%, #ff41f8 72%, #f0060b 90%);
@@ -95,97 +68,10 @@ p { margin: 0; color: var(--gray-70); }
     cursor: pointer;
 }
 
-.angular-logo {
-    max-width: 9.2rem;
-    animation: fade-in 10s cubic-bezier(0.23,1,0.32,1) both, hueBreathing2 5s ease-in-out infinite;
-}
-
-.divider {
-    width: 1px;
-    background: var(--rygbv-vertical-gradient);
-    margin-inline: 2rem;
-    background-size: 100% 200%;
-    animation: hueBreathing2 5s ease-in-out infinite;
-    cursor: pointer;
-}
-
-/* ==========================================================================
-   4. INTERACTIVE ELEMENTS
-   ========================================================================== */
-.view-selector-container {
-    margin: 0.5rem 0; 
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.view-selector-dropdown {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--gray-70);
-    border-radius: 0.5rem;
-    background-color: var(--gray-70);
-    width: 100%;
-    max-width: 300px;
-    margin: 0;
-    font-family: "Inter", sans-serif;
-    font-weight: 800;
-    font-size: 1rem;
-    color: var rgb(32, 35, 36);
-}
-
-.pill-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; 
-    gap: 1.25rem;
-}
-
-.pill {
-    display: inline-flex; 
-    align-items: center;
-    padding: 0.375rem 0.85rem;
-    border-radius: 2.75rem;
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--pill-accent);
-    background: color-mix(in srgb, var(--pill-accent) 8%, transparent);
-    transition: all 0.2s ease;
-    white-space: nowrap; 
-}
-
-.pill:hover { background: color-mix(in srgb, var(--pill-accent) 15%, transparent); }
-
-.social-links { 
-    display: flex; 
-    gap: 1rem; 
-    margin-top: 1.5rem;
-    padding-left: 0.25rem; 
-}
-
-.social-links path { fill: var(--gray-40); transition: fill 0.3s ease; }
-.social-links a:hover svg path { fill: var(--gray-90); }
-
-.tips-container {
-    margin-top: 1rem;
-    min-height: 1.5rem;
-}
-
-#Tips { margin: 0 !important; cursor: pointer; text-align: center; }
-
-/* ==========================================================================
-   5. ANIMATIONS
-   ========================================================================== */
 @keyframes hueBreathing1 { 
     0%, 100% { filter: hue-rotate(0deg); }
     25% { filter: hue-rotate(15deg); }
     75% { filter: hue-rotate(-15deg); }
-}
-
-@keyframes hueBreathing2 { 
-    0% { filter: hue-rotate(0deg); }
-    100% { filter: hue-rotate(360deg); }
 }
 
 @keyframes fade-in {
@@ -193,59 +79,12 @@ p { margin: 0; color: var(--gray-70); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.shake { animation: shake-anim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-
-@keyframes shake-anim {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
-}
-
-/* Dynamic Pill Colors */
-.pill:nth-child(6n+1) { --pill-accent: var(--violet); }
-.pill:nth-child(6n+2) { --pill-accent: var(--blue); }
-.pill:nth-child(6n+3) { --pill-accent: var(--green); }
-.pill:nth-child(6n+4) { --pill-accent: var(--yellow); }
-.pill:nth-child(6n+5) { --pill-accent: var(--red); }
-
 /* ==========================================================================
-   6. RESPONSIVE OVERRIDES (MOBILE)
+   4. RESPONSIVE LAYOUT
    ========================================================================== */
 @media (max-width: 768px) {
-    /* 1. Stack the containers vertically */
-    .content, .original-content-container {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 2rem; /* Adds space between the left and right sections */
-    }
-
-    /* 2. Turn the vertical divider into a horizontal one */
-    .divider {
-        width: 60%;
-        height: 1px;
-        margin: 1rem 0;
-    }
-
-    /* 3. Center the right side elements */
-    .right-side, .pill-group {
-        align-items: center;
-    }
-
-    /* 4. Adjust the header for smaller screens */
-    h1 {
-        font-size: 2.2rem;
-        letter-spacing: -0.05rem;
-    }
-
     .header-container {
         flex-direction: row;
         margin-bottom: 1.5rem;
-    }
-
-    /* 5. Ensure the dropdown isn't too wide on small phones */
-    .view-selector-dropdown {
-        max-width: 90%;
     }
 }
