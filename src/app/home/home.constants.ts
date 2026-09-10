@@ -26,7 +26,7 @@ export const TIPS_LIST: string[] = [
   "Try clicking the header to randomize the site colors!",
   "The Diep component is my personal favorite.",
   "The gradient follows your mouse—try moving it side to side.",
-  "You can toggle the visibility of the header content in sub-views.",
+  "Explore the dropdown menu to jump into different mini-games!",
   "Double-click the 'Tips' line to see more secrets!",
   "Access songs I wrote and produced on my Google Site.",
   "Read my compendium of short stories on the Google Docs."

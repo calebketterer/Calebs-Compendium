@@ -88,17 +88,12 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.state.handleGlobalClick();
     this.currentColors = this.uiService.getRandomizedColors(DEFAULT_COLORS.length);
     this.updateHeaderGradient(this.lastX);
-    this.state.toggleContent(this.state.selectedView);
   }
 
   onViewChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
     this.state.updateView(val);
     this.router.navigate([val]);
-  }
-
-  toggleOriginalContent(event?: Event): void {
-    this.state.toggleContent(this.state.selectedView);
   }
 
   // --- Shake Logic ---

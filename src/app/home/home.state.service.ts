@@ -6,7 +6,6 @@ import { TIPS_LIST } from './home.constants';
 })
 export class HomeStateService {
   selectedView = 'main-site';
-  isOriginalContentHidden = false;
   globalClickCount = 0;
   showClickerGame = false;
   currentTipText = TIPS_LIST[0];
@@ -19,16 +18,8 @@ export class HomeStateService {
     }
   }
 
-  // This was missing from the previous version
-  toggleContent(view: string) {
-    if (view !== 'main-site') {
-      this.isOriginalContentHidden = !this.isOriginalContentHidden;
-    }
-  }
-
   updateView(view: string) {
     this.selectedView = view;
-    this.isOriginalContentHidden = false;
     this.globalClickCount = 0;
     this.showClickerGame = false;
   }

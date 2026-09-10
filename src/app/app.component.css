@@ -95,18 +95,6 @@ p { margin: 0; color: var(--gray-70); }
     cursor: pointer;
 }
 
-.header-container svg {
-    position: absolute;
-    left: 65%;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.eye-open { color: var(--green); }
-.eye-closed { color: var(--red); }
-
 .angular-logo {
     max-width: 9.2rem;
     animation: fade-in 10s cubic-bezier(0.23,1,0.32,1) both, hueBreathing2 5s ease-in-out infinite;
@@ -251,21 +239,12 @@ p { margin: 0; color: var(--gray-70); }
         letter-spacing: -0.05rem;
     }
 
-    /* 5. Reposition the eye icon so it doesn't overlap centered text */
-    .header-container svg {
-        position: relative; /* Removes it from the absolute "float" */
-        left: 0;
-        margin-left: 10px;
-        top: 0;
-        transform: none;
-    }
-
     .header-container {
-        flex-direction: row; /* Keep h1 and eye side-by-side */
+        flex-direction: row;
         margin-bottom: 1.5rem;
     }
 
-    /* 6. Ensure the dropdown isn't too wide on small phones */
+    /* 5. Ensure the dropdown isn't too wide on small phones */
     .view-selector-dropdown {
         max-width: 90%;
     }
