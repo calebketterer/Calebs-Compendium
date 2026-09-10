@@ -8,7 +8,7 @@
     "postbuild": "node audit-components.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "apptree": "find . -maxdepth 4 -not -path \"*/.*\" -not -path \"./.angular*\" -not -path \"./.vscode*\" -not -path \"./dist*\" -not -path \"./node_modules*\" | sed -e \"s/[^-][^\\/]*\\// |/g\" -e \"s/|\\([^ ]\\)/|-\\1/\"",
+    "apptree": "find . -maxdepth 5 -not -path \"*/.*\" -not -path \"./.angular*\" -not -path \"./.vscode*\" -not -path \"./dist*\" -not -path \"./node_modules*\" | sed -e \"s/[^-][^\\/]*\\// |/g\" -e \"s/|\\([^ ]\\)/|-\\1/\"",
     "diepapptree": "find src/app/diep -not -path \"*/.*\" | sed -e \"s/[^-][^\\/]*\\// |/g\" -e \"s/|\\([^ ]\\)/|-\\1/\""
   },
   "private": true,

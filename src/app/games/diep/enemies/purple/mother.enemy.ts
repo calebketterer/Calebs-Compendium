@@ -1,5 +1,5 @@
 import { Enemy, Player, Bullet } from '../../core/diep.interfaces';
-import { EnemyRegistry } from '../../enemies/enemy.registry';
+import { EnemyRegistry } from '../enemy.registry';
 
 export class MotherEnemy {
     public static metadata = {
