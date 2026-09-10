@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-// Clicker Overlay Component
-import { ClickerOverlayComponent } from './clicker-overlay/clicker-overlay.component';
-
 // Constants & Services
 import { DEFAULT_COLORS, MESSAGE_BOX_DEFAULTS } from './home/home.constants';
 import { UiEffectsService } from './home/home.ui-effects.service';
@@ -15,7 +12,7 @@ import { HomeStateService } from './home/home.state.service';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, CommonModule, ClickerOverlayComponent
+    RouterOutlet, CommonModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -74,7 +71,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private onHeaderClick() {
-    this.state.handleGlobalClick();
     this.currentColors = this.uiService.getRandomizedColors(DEFAULT_COLORS.length);
     this.updateHeaderGradient(this.lastX);
   }

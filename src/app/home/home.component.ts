@@ -31,17 +31,14 @@ export class HomeComponent {
   // --- Shake Logic ---
 
   shakeHeyThere() {
-    this.state.handleGlobalClick();
     this.applyShake(this.heyThere.nativeElement);
   }
 
   shakeGoodNews() {
-    this.state.handleGlobalClick();
     this.applyShake(this.goodNews.nativeElement);
   }
 
   shakeTips() {
-    this.state.handleGlobalClick();
     this.state.cycleTip();
     this.applyShake(this.Tips.nativeElement);
   }
@@ -53,7 +50,6 @@ export class HomeComponent {
   }
 
   toggleDirection() {
-    this.state.handleGlobalClick();
     this.state.reverse = !this.state.reverse;
   }
 }
