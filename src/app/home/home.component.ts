@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HomeStateService } from './home.state.service';
+import { PageTransitionService } from '../shared/transitions/page-transition.service';
 
 @Component({
   selector: 'app-home',
@@ -19,13 +20,16 @@ export class HomeComponent {
   constructor(
     private renderer: Renderer2,
     public state: HomeStateService,
-    private router: Router
+    private router: Router,
+    private pageTransitionService: PageTransitionService
   ) {}
 
   onViewChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
     this.state.updateView(val);
-    this.router.navigate([val]);
+
+    // Triggers overlay fade-in, navigates, and fades back out
+    this.pageTransitionService.navigateWithTransition(val);
   }
 
   // --- Shake Logic ---

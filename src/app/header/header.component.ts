@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { DEFAULT_COLORS } from '../home/home.constants';
 import { UiEffectsService } from '../home/home.ui-effects.service';
 import { HomeStateService } from '../home/home.state.service';
+import { PageTransitionService } from '../shared/transitions/page-transition.service';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +27,8 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private uiService: UiEffectsService,
     public state: HomeStateService,
-    private router: Router
+    private router: Router,
+    private transitionService: PageTransitionService
   ) {}
 
   ngOnInit(): void {
@@ -53,7 +55,7 @@ export class HeaderComponent implements OnInit, AfterViewInit {
 
   goHome(): void {
     this.state.updateView('home');
-    this.router.navigate(['/']);
+    this.transitionService.navigateWithTransition('/', 250);
   }
 
   @HostListener('document:mousemove', ['$event'])
