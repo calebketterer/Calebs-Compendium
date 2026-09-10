@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { Component, ElementRef, ViewChild, Renderer2, AfterViewInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HomeStateService } from './home.state.service';
 import { PageTransitionService } from '../shared/transitions/page-transition.service';
+import { TipTransitionService } from './tip-transition.service';
 
 @Component({
   selector: 'app-home',
@@ -12,27 +12,32 @@ import { PageTransitionService } from '../shared/transitions/page-transition.ser
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit {
   @ViewChild('heyThere', { static: true }) heyThere!: ElementRef<HTMLElement>;
   @ViewChild('goodNews', { static: true }) goodNews!: ElementRef<HTMLElement>;
   @ViewChild('Tips', { static: true }) Tips!: ElementRef<HTMLElement>;
 
-  constructor(
-    private renderer: Renderer2,
-    public state: HomeStateService,
-    private router: Router,
-    private pageTransitionService: PageTransitionService
-  ) {}
+  private renderer = inject(Renderer2);
+  public state = inject(HomeStateService);
+  private pageTransitionService = inject(PageTransitionService);
+  private tipTransitionService = inject(TipTransitionService);
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.tipTransitionService.fitTipText(this.Tips, this.renderer);
+    }, 0);
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.tipTransitionService.fitTipText(this.Tips, this.renderer);
+  }
 
   onViewChange(event: Event): void {
     const val = (event.target as HTMLSelectElement).value;
     this.state.updateView(val);
-
-    // Triggers overlay fade-in, navigates, and fades back out
     this.pageTransitionService.navigateWithTransition(val);
   }
-
-  // --- Shake Logic ---
 
   shakeHeyThere() {
     this.applyShake(this.heyThere.nativeElement);
@@ -42,9 +47,8 @@ export class HomeComponent {
     this.applyShake(this.goodNews.nativeElement);
   }
 
-  shakeTips() {
-    this.state.cycleTip();
-    this.applyShake(this.Tips.nativeElement);
+  cycleTipWithFade() {
+    this.tipTransitionService.cycleTipWithFade(this.Tips, this.renderer);
   }
 
   private applyShake(element: HTMLElement) {

@@ -46,6 +46,10 @@ p {
     cursor: pointer;
 }
 
+.divider.reverse {
+    animation-direction: reverse;
+}
+
 /* ==========================================================================
    3. DROPDOWN & TIPS
    ========================================================================== */
@@ -72,8 +76,14 @@ p {
 }
 
 .tips-container {
-    margin-top: 1rem;
-    min-height: 1.5rem;
+    margin: 1rem auto 0 auto;
+    width: 100%;
+    max-width: 400px; /* Locked target width for tip text scaling */
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 #Tips {
@@ -81,6 +91,14 @@ p {
     cursor: pointer;
     text-align: center;
     color: var(--gray-70);
+    white-space: nowrap;
+    display: inline-block;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#Tips.is-fading {
+    opacity: 0;
 }
 
 /* ==========================================================================
@@ -185,6 +203,10 @@ p {
     }
 
     .view-selector-dropdown {
+        max-width: 90%;
+    }
+
+    .tips-container {
         max-width: 90%;
     }
 }
