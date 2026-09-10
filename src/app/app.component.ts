@@ -20,6 +20,7 @@ import { HomeStateService } from './home/home.state.service';
 export class AppComponent implements OnInit, AfterViewInit {
   messageBoxText = MESSAGE_BOX_DEFAULTS.TEXT;
   messageBoxClass = MESSAGE_BOX_DEFAULTS.CLASS;
+  showBackButton = false;
 
   @ViewChild('colorfulHeader', { static: true }) colorfulHeader!: ElementRef<HTMLHeadingElement>;
 
@@ -34,12 +35,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Listen to route changes to sync HomeStateService state
+    // Listen to route changes to update selectedView and showBackButton visibility
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const path = event.urlAfterRedirects.replace('/', '').toLowerCase();
         const currentView = path || 'home';
+
+        this.showBackButton = currentView !== 'home' && currentView !== '';
+
         if (currentView !== this.state.selectedView) {
           this.state.updateView(currentView);
         }
@@ -51,6 +55,11 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (this.colorfulHeader?.nativeElement) {
       this.colorfulHeader.nativeElement.onclick = () => this.onHeaderClick();
     }
+  }
+
+  goHome(): void {
+    this.state.updateView('home');
+    this.router.navigate(['/']);
   }
 
   @HostListener('document:mousemove', ['$event'])
