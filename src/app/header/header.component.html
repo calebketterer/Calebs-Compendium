@@ -12,10 +12,10 @@
         </button>
     </div>
 
-    <!-- Centered Animated Header -->
-    <h1 #colorfulHeader class="animated-header" id="colorful-header">
-        Caleb's Compendium
-    </h1>
+    <!-- Centered Canvas Animated Header -->
+    <div class="canvas-header-wrapper" (click)="onHeaderClick()">
+        <canvas #titleCanvas class="title-canvas"></canvas>
+    </div>
 
     <!-- Right Slot for Layout Balance -->
     <div class="header-slot right-slot"></div>

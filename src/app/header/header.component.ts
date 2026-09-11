@@ -1,12 +1,11 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, Renderer2, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, HostListener, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-import { DEFAULT_COLORS } from '../home/home.constants';
-import { UiEffectsService } from '../home/home.ui-effects.service';
 import { HomeStateService } from '../home/home.state.service';
 import { PageTransitionService } from '../shared/transitions/page-transition.service';
+import { HeaderTitleEngine } from './title-engine/header-title.engine';
 
 @Component({
   selector: 'app-header',
@@ -15,21 +14,15 @@ import { PageTransitionService } from '../shared/transitions/page-transition.ser
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit, AfterViewInit {
+export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   showBackButton = false;
 
-  @ViewChild('colorfulHeader', { static: true }) colorfulHeader!: ElementRef<HTMLHeadingElement>;
+  @ViewChild('titleCanvas', { static: true }) titleCanvas!: ElementRef<HTMLCanvasElement>;
 
-  private currentColors = [...DEFAULT_COLORS];
-  private lastX = 50;
-
-  constructor(
-    private renderer: Renderer2,
-    private uiService: UiEffectsService,
-    public state: HomeStateService,
-    private router: Router,
-    private transitionService: PageTransitionService
-  ) {}
+  public state = inject(HomeStateService);
+  private router = inject(Router);
+  private transitionService = inject(PageTransitionService);
+  private titleEngine?: HeaderTitleEngine;
 
   ngOnInit(): void {
     this.router.events
@@ -47,36 +40,27 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.updateHeaderGradient(50);
-    if (this.colorfulHeader?.nativeElement) {
-      this.colorfulHeader.nativeElement.onclick = () => this.onHeaderClick();
+    if (this.titleCanvas?.nativeElement) {
+      this.titleEngine = new HeaderTitleEngine(this.titleCanvas.nativeElement);
+      this.titleEngine.start();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.titleEngine?.stop();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.titleEngine?.resize();
+  }
+
+  onHeaderClick(): void {
+    this.titleEngine?.handleCanvasClick();
   }
 
   goHome(): void {
     this.state.updateView('home');
     this.transitionService.navigateWithTransition('/', 250);
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    if (!this.colorfulHeader?.nativeElement) return;
-    this.lastX = (event.clientX / window.innerWidth) * 100;
-    this.updateHeaderGradient(this.lastX);
-  }
-
-  @HostListener('window:mouseout', ['$event'])
-  onMouseOut(event: MouseEvent) {
-    if (!event.relatedTarget) this.updateHeaderGradient(50);
-  }
-
-  private updateHeaderGradient(x: number) {
-    const gradient = this.uiService.generateGradientString(x, this.currentColors);
-    this.renderer.setStyle(this.colorfulHeader.nativeElement, 'backgroundImage', gradient);
-  }
-
-  private onHeaderClick() {
-    this.currentColors = this.uiService.getRandomizedColors(DEFAULT_COLORS.length);
-    this.updateHeaderGradient(this.lastX);
   }
 }
