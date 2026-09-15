@@ -7,12 +7,8 @@ import { calculateExactFontSize } from './tip-fit.utility';
 })
 export class TipTransitionService {
   private isTipAnimating = false;
-  private canvasContext: CanvasRenderingContext2D | null = null;
 
-  constructor(private state: HomeStateService) {
-    const canvas = document.createElement('canvas');
-    this.canvasContext = canvas.getContext('2d');
-  }
+  constructor(private state: HomeStateService) {}
 
   cycleTipWithFade(tipsElementRef: ElementRef<HTMLElement>, renderer: Renderer2): void {
     if (this.isTipAnimating || !tipsElementRef || !tipsElementRef.nativeElement) {
@@ -50,16 +46,30 @@ export class TipTransitionService {
     }
 
     const container = el.parentElement;
-    const targetWidthPx = container && container.clientWidth > 0 ? container.clientWidth : 400;
+    if (!container) {
+      return;
+    }
+
+    // Force single-line inline behavior on target element
+    renderer.setStyle(el, 'whiteSpace', 'nowrap');
+    renderer.setStyle(el, 'display', 'inline-block');
+
+    // Read true parent container content bounds excluding padding
+    const containerStyle = window.getComputedStyle(container);
+    const paddingLeft = parseFloat(containerStyle.paddingLeft) || 0;
+    const paddingRight = parseFloat(containerStyle.paddingRight) || 0;
+    const containerRectWidth = container.getBoundingClientRect().width;
+    const availableWidth = Math.max(containerRectWidth - paddingLeft - paddingRight, 10);
 
     const computedStyle = window.getComputedStyle(el);
-    const fontFamily = computedStyle.fontFamily || 'sans-serif';
 
+    // Calculate exact font size using off-screen layout measurement
     const calculatedFontSize = calculateExactFontSize(
       text,
-      targetWidthPx,
-      fontFamily,
-      this.canvasContext
+      availableWidth,
+      computedStyle,
+      8,
+      40
     );
 
     renderer.setStyle(el, 'font-size', `${calculatedFontSize}px`);
