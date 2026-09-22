@@ -1,6 +1,7 @@
 import { TitleStateManager } from './title.state-manager';
-import { TitleFeaturesRegistry, DEFAULT_GRAY } from './title-features.registry';
+import { TitleFeaturesRegistry } from './title-features.registry';
 import { LetterState, TitleFeatureContext } from './title.interfaces';
+import { AngularThemeManager } from '../angular-theme.manager';
 
 export class HeaderTitleEngine {
   private canvas: HTMLCanvasElement;
@@ -114,7 +115,7 @@ export class HeaderTitleEngine {
       };
 
       this.ctx.shadowBlur = 0;
-      this.ctx.fillStyle = DEFAULT_GRAY;
+      this.ctx.fillStyle = AngularThemeManager.getShiftedGradient(this.ctx, totalWidth, this.frame);
       this.ctx.font = `900 ${fontSize}px ${fontFamily}`;
 
       const allFeatureIds = TitleFeaturesRegistry.getAllIds();

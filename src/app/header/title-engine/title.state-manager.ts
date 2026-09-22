@@ -11,7 +11,7 @@ export class TitleStateManager {
   public static activeFeatures: Map<string, number> = new Map();
   public static targetFeatures: Set<string> = new Set();
 
-  private static readonly INITIAL_DELAY_FRAMES = 5 * 60;
+  private static readonly INITIAL_DELAY_FRAMES = 5 * 60; // 5 seconds at 60fps
   public static isFrozen = false;
   public static isResetting = false;
   public static hasStarted = false;
@@ -143,9 +143,9 @@ export class TitleStateManager {
 
   private static getRandomDuration(cat: FeatureCategory): number {
     if (cat === 'font') {
-      return Math.floor(Math.random() * 1800) + 1800;
+      return Math.floor(Math.random() * 1800) + 1800; // 30s to 60s
     }
-    return Math.floor(Math.random() * 600) + 600;
+    return Math.floor(Math.random() * 600) + 600; // 10s to 20s
   }
 
   private static evaluateCategories(frame: number): void {
