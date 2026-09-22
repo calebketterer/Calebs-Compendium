@@ -1,10 +1,4 @@
-import { TitleFeatureConfig, TitleFeatureContext } from './title.interfaces';
-
-export type FeatureCategory = 'font' | 'color' | 'motion' | 'misc';
-
-export interface CategorizedFeatureConfig extends TitleFeatureConfig {
-  category: FeatureCategory;
-}
+import { CategorizedFeatureConfig, FeatureCategory, TitleFeatureContext } from './title.interfaces';
 
 export class TitleFeaturesRegistry {
   private static features: Map<string, CategorizedFeatureConfig> = new Map();
@@ -116,7 +110,6 @@ export class ColorShiftManager {
     const [c1, c2, c3] = this.currentColors;
     let grad: CanvasGradient;
 
-    // Dynamic animated circulation & pulsing stop offsets
     const angle = frame * 0.02;
     const pulseStop = 0.5 + Math.sin(frame * 0.05) * 0.15;
 
@@ -152,56 +145,7 @@ export class ColorShiftManager {
   }
 }
 
-// COLOR CATEGORY
-TitleFeaturesRegistry.register({
-  id: 'neonGradient',
-  name: 'Neon Spectrum Gradient',
-  category: 'color',
-  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
-    if (intensity < 0.01) return;
-    ColorShiftManager.setTargets([PALETTE.brightBlue, PALETTE.pink, PALETTE.violet], 'horizontal');
-    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
-    ctx.fillStyle = grad;
-  }
-});
-
-TitleFeaturesRegistry.register({
-  id: 'sunsetGradient',
-  name: 'Sunset Fire Gradient',
-  category: 'color',
-  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
-    if (intensity < 0.01) return;
-    ColorShiftManager.setTargets([PALETTE.yellow, PALETTE.red, PALETTE.darkBlue], 'vertical');
-    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
-    ctx.fillStyle = grad;
-  }
-});
-
-TitleFeaturesRegistry.register({
-  id: 'cyberGradient',
-  name: 'Cyber Diagonal Gradient',
-  category: 'color',
-  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
-    if (intensity < 0.01) return;
-    ColorShiftManager.setTargets([PALETTE.green, PALETTE.brightBlue, PALETTE.pink], 'diagonal');
-    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
-    ctx.fillStyle = grad;
-  }
-});
-
-TitleFeaturesRegistry.register({
-  id: 'radialPulse',
-  name: 'Radial Glow Gradient',
-  category: 'color',
-  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
-    if (intensity < 0.01) return;
-    ColorShiftManager.setTargets([PALETTE.pink, PALETTE.violet, PALETTE.brightBlue], 'radial');
-    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
-    ctx.fillStyle = grad;
-  }
-});
-
-// FONT CATEGORY
+// Built-in feature registrations
 TitleFeaturesRegistry.register({
   id: 'globalFontSwap',
   name: 'Global Title Font Cross-Fade',
@@ -209,7 +153,6 @@ TitleFeaturesRegistry.register({
   handler: () => {}
 });
 
-// MOTION CATEGORY
 TitleFeaturesRegistry.register({
   id: 'staggeredWave',
   name: 'Staggered Wave Motion',
@@ -263,23 +206,22 @@ TitleFeaturesRegistry.register({
   }
 });
 
-// MISC CATEGORY
-TitleFeaturesRegistry.register({
-  id: 'fontStyleShift',
-  name: 'Letter Font Morph',
-  category: 'misc',
-  handler: ({ ctx, letter, frame, intensity }) => {
-    if (intensity < 0.05) return;
-    const fonts = [
-      `900 ${letter.fontSize}px Inter, sans-serif`,
-      `italic 800 ${letter.fontSize}px Georgia, serif`,
-      `900 ${letter.fontSize}px 'Courier New', monospace`,
-      `italic 900 ${letter.fontSize}px 'Trebuchet MS', sans-serif`
-    ];
-    const fontIndex = Math.floor((frame * 0.003 + letter.index * 0.1) % fonts.length);
-    ctx.font = fonts[fontIndex];
-  }
-});
+// TitleFeaturesRegistry.register({
+//   id: 'fontStyleShift',
+//   name: 'Letter Font Morph',
+//   category: 'misc',
+//   handler: ({ ctx, letter, frame, intensity }) => {
+//     if (intensity < 0.05) return;
+//     const fonts = [
+//       `900 ${letter.fontSize}px Inter, sans-serif`,
+//       `italic 800 ${letter.fontSize}px Georgia, serif`,
+//       `900 ${letter.fontSize}px 'Courier New', monospace`,
+//       `italic 900 ${letter.fontSize}px 'Trebuchet MS', sans-serif`
+//     ];
+//     const fontIndex = Math.floor((frame * 0.003 + letter.index * 0.1) % fonts.length);
+//     ctx.font = fonts[fontIndex];
+//   }
+// });
 
 TitleFeaturesRegistry.register({
   id: 'letterDissolve',
@@ -295,11 +237,71 @@ TitleFeaturesRegistry.register({
 });
 
 TitleFeaturesRegistry.register({
-  id: 'strokeGrowth',
-  name: 'Tight Dark Outline',
+  id: 'ambientGlow',
+  name: 'Tight Ambient Edge Glow',
   category: 'misc',
+  handler: ({ ctx, frame, intensity }) => {
+    ctx.shadowColor = PALETTE.brightBlue;
+    ctx.shadowBlur = (1 + Math.sin(frame * 0.04) * 1.5) * intensity;
+  }
+});
+
+// Color Fill Features
+TitleFeaturesRegistry.register({
+  id: 'neonGradient',
+  name: 'Neon Spectrum Gradient',
+  category: 'color',
+  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
+    if (intensity < 0.01) return;
+    ColorShiftManager.setTargets([PALETTE.brightBlue, PALETTE.pink, PALETTE.violet], 'horizontal');
+    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
+    ctx.fillStyle = grad;
+  }
+});
+
+TitleFeaturesRegistry.register({
+  id: 'sunsetGradient',
+  name: 'Sunset Fire Gradient',
+  category: 'color',
+  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
+    if (intensity < 0.01) return;
+    ColorShiftManager.setTargets([PALETTE.yellow, PALETTE.red, PALETTE.darkBlue], 'vertical');
+    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
+    ctx.fillStyle = grad;
+  }
+});
+
+TitleFeaturesRegistry.register({
+  id: 'cyberGradient',
+  name: 'Cyber Diagonal Gradient',
+  category: 'color',
+  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
+    if (intensity < 0.01) return;
+    ColorShiftManager.setTargets([PALETTE.green, PALETTE.brightBlue, PALETTE.pink], 'diagonal');
+    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
+    ctx.fillStyle = grad;
+  }
+});
+
+TitleFeaturesRegistry.register({
+  id: 'radialPulse',
+  name: 'Radial Glow Gradient',
+  category: 'color',
+  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
+    if (intensity < 0.01) return;
+    ColorShiftManager.setTargets([PALETTE.pink, PALETTE.violet, PALETTE.brightBlue], 'radial');
+    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
+    ctx.fillStyle = grad;
+  }
+});
+
+// Stroke Features
+TitleFeaturesRegistry.register({
+  id: 'tightOutline',
+  name: 'Tight Dark Outline',
+  category: 'stroke',
   handler: ({ ctx, letter, intensity }) => {
-    letter.strokeWidth = (0.5 + 0.75 * intensity);
+    letter.strokeWidth = 0.5 + 0.75 * intensity;
     ctx.lineWidth = letter.strokeWidth;
     ctx.strokeStyle = `rgba(15, 23, 42, ${0.7 * intensity})`;
     ctx.lineJoin = 'round';
@@ -307,11 +309,45 @@ TitleFeaturesRegistry.register({
 });
 
 TitleFeaturesRegistry.register({
-  id: 'ambientGlow',
-  name: 'Tight Ambient Edge Glow',
-  category: 'misc',
-  handler: ({ ctx, frame, intensity }) => {
-    ctx.shadowColor = PALETTE.brightBlue;
-    ctx.shadowBlur = (1 + Math.sin(frame * 0.04) * 1.5) * intensity;
+  id: 'stroke3D',
+  name: '3D Extruded Stroke',
+  category: 'stroke',
+  handler: ({ ctx, letter, intensity }) => {
+    letter.strokeWidth = 1.5;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = `rgba(30, 41, 59, ${0.8 * intensity})`;
+    ctx.lineJoin = 'round';
+    letter.strokeOffsetX = Math.round(4 * intensity);
+    letter.strokeOffsetY = Math.round(4 * intensity);
+  }
+});
+
+TitleFeaturesRegistry.register({
+  id: 'strokeShadow',
+  name: 'Soft Shadow Stroke',
+  category: 'stroke',
+  handler: ({ ctx, letter, intensity }) => {
+    letter.shadowBlur = 8 * intensity;
+    letter.shadowColor = `rgba(15, 23, 42, ${0.65 * intensity})`;
+    letter.strokeWidth = 1.2 * intensity;
+    ctx.lineWidth = letter.strokeWidth;
+    ctx.strokeStyle = `rgba(15, 23, 42, ${0.8 * intensity})`;
+    ctx.lineJoin = 'round';
+  }
+});
+
+TitleFeaturesRegistry.register({
+  id: 'stroke3DRotating',
+  name: 'Rotating 3D Orbit Stroke',
+  category: 'stroke',
+  handler: ({ ctx, letter, frame, intensity }) => {
+    const angle = frame * 0.04 + letter.index * 0.2;
+    const radius = 3.5 * intensity;
+    letter.strokeWidth = 1.2;
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = PALETTE.darkBlue;
+    ctx.lineJoin = 'round';
+    letter.strokeOffsetX = Math.cos(angle) * radius;
+    letter.strokeOffsetY = Math.sin(angle) * radius;
   }
 });

@@ -1,3 +1,5 @@
+export type FeatureCategory = 'font' | 'color' | 'motion' | 'misc' | 'stroke';
+
 export interface LetterState {
   char: string;
   index: number;
@@ -8,6 +10,11 @@ export interface LetterState {
   fontSize: number;
   opacity: number;
   strokeWidth: number;
+  strokeColor?: string;
+  strokeOffsetX?: number;
+  strokeOffsetY?: number;
+  shadowBlur?: number;
+  shadowColor?: string;
   offsetY: number;
   scaleX: number;
   scaleY: number;
@@ -29,4 +36,8 @@ export interface TitleFeatureConfig {
   id: string;
   name: string;
   handler: TitleFeatureHandler;
+}
+
+export interface CategorizedFeatureConfig extends TitleFeatureConfig {
+  category: FeatureCategory;
 }

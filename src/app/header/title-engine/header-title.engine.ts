@@ -138,8 +138,15 @@ export class HeaderTitleEngine {
       this.ctx.scale(letter.scaleX, letter.scaleY);
       this.ctx.globalAlpha = Math.max(0, Math.min(1, letter.opacity * alphaMultiplier));
 
+      if (letter.shadowBlur && letter.shadowColor) {
+        this.ctx.shadowBlur = letter.shadowBlur;
+        this.ctx.shadowColor = letter.shadowColor;
+      }
+
       if (letter.strokeWidth > 0) {
-        this.ctx.strokeText(char, 0, 0);
+        const ox = letter.strokeOffsetX || 0;
+        const oy = letter.strokeOffsetY || 0;
+        this.ctx.strokeText(char, ox, oy);
       }
       
       this.ctx.fillText(char, 0, 0);

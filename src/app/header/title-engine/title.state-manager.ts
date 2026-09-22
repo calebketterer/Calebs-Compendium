@@ -1,4 +1,5 @@
-import { TitleFeaturesRegistry, FeatureCategory, ColorShiftManager, FONT_POOL, DEFAULT_GRAY } from './title-features.registry';
+import { TitleFeaturesRegistry, ColorShiftManager, FONT_POOL, DEFAULT_GRAY } from './title-features.registry';
+import { FeatureCategory } from './title.interfaces';
 
 interface CategoryState {
   activeEffectIds: string[];
@@ -18,6 +19,7 @@ export class TitleStateManager {
   private static categoryStates: Map<FeatureCategory, CategoryState> = new Map([
     ['font', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
     ['color', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
+    ['stroke', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
     ['motion', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
     ['misc', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }]
   ]);
@@ -73,7 +75,6 @@ export class TitleStateManager {
         this.fontMorphProgress += 0.04;
       }
 
-      // Once completely reset, lock state in frozen/idle mode
       if (remainingIntensities === 0 && this.fontMorphProgress >= 1) {
         this.isResetting = false;
         this.isFrozen = true;
@@ -142,9 +143,9 @@ export class TitleStateManager {
 
   private static getRandomDuration(cat: FeatureCategory): number {
     if (cat === 'font') {
-      return Math.floor(Math.random() * 900) + 900;
+      return Math.floor(Math.random() * 1800) + 1800;
     }
-    return Math.floor(Math.random() * 300) + 300;
+    return Math.floor(Math.random() * 600) + 600;
   }
 
   private static evaluateCategories(frame: number): void {
@@ -162,7 +163,7 @@ export class TitleStateManager {
           if (cat === 'font') {
             state.activeEffectIds = ['globalFontSwap'];
             this.triggerGlobalFontShift();
-          } else if (cat === 'color') {
+          } else if (cat === 'color' || cat === 'stroke') {
             const chosen = available[Math.floor(Math.random() * available.length)];
             state.activeEffectIds = [chosen];
           } else if (cat === 'motion' && Math.random() > 0.4 && available.length >= 2) {
