@@ -1,5 +1,15 @@
 import { CategorizedFeatureConfig, FeatureCategory, TitleFeatureContext } from './title.interfaces';
 
+// Dynamically load Google Fonts into document head so Canvas can render display families
+const googleFontsUrl = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Oswald:wght@700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Silkscreen&family=Space+Grotesk:wght@700&display=swap';
+
+if (typeof document !== 'undefined' && !document.querySelector(`link[href="${googleFontsUrl}"]`)) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = googleFontsUrl;
+  document.head.appendChild(link);
+}
+
 export class TitleFeaturesRegistry {
   private static features: Map<string, CategorizedFeatureConfig> = new Map();
 
@@ -43,7 +53,10 @@ export const PALETTE = {
   yellow: '#b8b600',
   green: '#32881f',
   blue: '#104aee',
-  violet: '#8001c6'
+  violet: '#8001c6',
+  angularRed: '#f00435',
+  angularPink: '#e02e85',
+  angularPurple: '#7000ff'
 };
 
 export const FONT_POOL = [
@@ -51,7 +64,12 @@ export const FONT_POOL = [
   'Georgia, serif',
   '"Courier New", monospace',
   '"Trebuchet MS", sans-serif',
-  'Impact, Arial Black, sans-serif'
+  'Impact, Arial Black, sans-serif',
+  '"Oswald", sans-serif',
+  '"Playfair Display", serif',
+  '"Cinzel", serif',
+  '"Space Grotesk", sans-serif',
+  '"Silkscreen", sans-serif'
 ];
 
 export class ColorUtils {
@@ -206,23 +224,6 @@ TitleFeaturesRegistry.register({
   }
 });
 
-// TitleFeaturesRegistry.register({
-//   id: 'fontStyleShift',
-//   name: 'Letter Font Morph',
-//   category: 'misc',
-//   handler: ({ ctx, letter, frame, intensity }) => {
-//     if (intensity < 0.05) return;
-//     const fonts = [
-//       `900 ${letter.fontSize}px Inter, sans-serif`,
-//       `italic 800 ${letter.fontSize}px Georgia, serif`,
-//       `900 ${letter.fontSize}px 'Courier New', monospace`,
-//       `italic 900 ${letter.fontSize}px 'Trebuchet MS', sans-serif`
-//     ];
-//     const fontIndex = Math.floor((frame * 0.003 + letter.index * 0.1) % fonts.length);
-//     ctx.font = fonts[fontIndex];
-//   }
-// });
-
 TitleFeaturesRegistry.register({
   id: 'letterDissolve',
   name: 'Disappearing Letter Fade',
@@ -247,6 +248,18 @@ TitleFeaturesRegistry.register({
 });
 
 // Color Fill Features
+TitleFeaturesRegistry.register({
+  id: 'angularGradient',
+  name: 'Angular Red/Pink/Purple Gradient',
+  category: 'color',
+  handler: ({ ctx, canvasWidth, canvasHeight, frame, intensity }) => {
+    if (intensity < 0.01) return;
+    ColorShiftManager.setTargets([PALETTE.angularPink, PALETTE.angularRed, PALETTE.angularPurple], 'horizontal');
+    const grad = ColorShiftManager.createGradient(ctx, canvasWidth, canvasHeight, frame);
+    ctx.fillStyle = grad;
+  }
+});
+
 TitleFeaturesRegistry.register({
   id: 'neonGradient',
   name: 'Neon Spectrum Gradient',

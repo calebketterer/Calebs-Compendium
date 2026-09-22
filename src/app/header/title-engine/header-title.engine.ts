@@ -116,7 +116,7 @@ export class HeaderTitleEngine {
 
       this.ctx.shadowBlur = 0;
       this.ctx.fillStyle = AngularThemeManager.getShiftedGradient(this.ctx, totalWidth, this.frame);
-      this.ctx.font = `900 ${fontSize}px ${fontFamily}`;
+      this.ctx.font = `600 ${fontSize}px ${fontFamily}`;
 
       const allFeatureIds = TitleFeaturesRegistry.getAllIds();
       allFeatureIds.forEach(featureId => {
