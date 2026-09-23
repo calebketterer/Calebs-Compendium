@@ -60,9 +60,8 @@ export const PALETTE = {
 };
 
 export const FONT_POOL = [
-  'Inter, system-ui, sans-serif',
+  '"Baloo 2", sans-serif',
   'Georgia, serif',
-  '"Courier New", monospace',
   '"Trebuchet MS", sans-serif',
   'Impact, Arial Black, sans-serif',
   '"Oswald", sans-serif',

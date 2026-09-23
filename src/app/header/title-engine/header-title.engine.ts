@@ -11,6 +11,17 @@ export class HeaderTitleEngine {
   private text = "Caleb's Compendium";
   private clickTimer: any = null;
 
+  // The weight the title is actually drawn at. Measurement and drawing must
+  // use the same weight, or measured character widths won't match the
+  // rendered glyph widths and letters will drift out of their slots.
+  private static readonly TITLE_FONT_WEIGHT = 600;
+
+  // Wall-clock timing for the gradient, kept independent of frame count so
+  // the hue-rotation speed doesn't drift with the viewer's refresh rate.
+  private startTime = performance.now();
+  private frozenElapsedMs = 0;
+  private currentElapsedMs = 0;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
@@ -61,6 +72,14 @@ export class HeaderTitleEngine {
     }
     TitleStateManager.update(this.frame);
 
+    // Pin elapsed time while frozen so the hue doesn't jump on resume.
+    if (TitleStateManager.isFrozen) {
+      this.currentElapsedMs = this.frozenElapsedMs;
+    } else {
+      this.currentElapsedMs = performance.now() - this.startTime;
+      this.frozenElapsedMs = this.currentElapsedMs;
+    }
+
     const rect = this.canvas.getBoundingClientRect();
     const w = rect.width;
     const h = rect.height;
@@ -70,7 +89,7 @@ export class HeaderTitleEngine {
     this.ctx.clearRect(0, 0, w, h);
 
     const fontSize = Math.min(w * 0.08, 44);
-    
+
     this.ctx.save();
     this.ctx.translate(cx, cy);
 
@@ -85,7 +104,9 @@ export class HeaderTitleEngine {
   }
 
   private renderTitleWithFont(fontFamily: string, fontSize: number, canvasWidth: number, canvasHeight: number, alphaMultiplier: number): void {
-    this.ctx.font = `900 ${fontSize}px ${fontFamily}`;
+    // Measure at the same weight we'll draw with, so layout matches the
+    // actual glyph widths instead of a heavier/lighter weight's widths.
+    this.ctx.font = `${HeaderTitleEngine.TITLE_FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
 
@@ -115,8 +136,13 @@ export class HeaderTitleEngine {
       };
 
       this.ctx.shadowBlur = 0;
-      this.ctx.fillStyle = AngularThemeManager.getShiftedGradient(this.ctx, totalWidth, this.frame);
-      this.ctx.font = `600 ${fontSize}px ${fontFamily}`;
+      // Flat color based on this letter's left-to-right position in the
+      // word (0 = leftmost, 1 = rightmost), not a CanvasGradient — see
+      // AngularThemeManager.getColorAtPosition for why.
+      const normalizedT = totalWidth > 0 ? (letter.x + totalWidth / 2) / totalWidth : 0.5;
+      this.ctx.fillStyle = AngularThemeManager.getColorAtPosition(normalizedT, this.currentElapsedMs);
+      // Re-assert the draw weight in case a feature handler touched ctx.font.
+      this.ctx.font = `${HeaderTitleEngine.TITLE_FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
 
       const allFeatureIds = TitleFeaturesRegistry.getAllIds();
       allFeatureIds.forEach(featureId => {
@@ -149,7 +175,7 @@ export class HeaderTitleEngine {
         const oy = letter.strokeOffsetY || 0;
         this.ctx.strokeText(char, ox, oy);
       }
-      
+
       this.ctx.fillText(char, 0, 0);
 
       this.ctx.restore();

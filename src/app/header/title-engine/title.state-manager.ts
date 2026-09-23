@@ -11,10 +11,12 @@ export class TitleStateManager {
   public static activeFeatures: Map<string, number> = new Map();
   public static targetFeatures: Set<string> = new Set();
 
-  private static readonly INITIAL_DELAY_FRAMES = 5 * 60; // 5 seconds at 60fps
+  private static readonly INITIAL_DELAY_FRAMES = 30 * 60; // 30 seconds at 60fps
   public static isFrozen = false;
   public static isResetting = false;
   public static hasStarted = false;
+
+  private static nextEvalFrame = TitleStateManager.INITIAL_DELAY_FRAMES;
 
   private static categoryStates: Map<FeatureCategory, CategoryState> = new Map([
     ['font', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
@@ -34,6 +36,7 @@ export class TitleStateManager {
     this.isFrozen = false;
     this.isResetting = false;
     this.hasStarted = false;
+    this.nextEvalFrame = this.INITIAL_DELAY_FRAMES;
     this.currentFont = FONT_POOL[0];
     this.previousFont = FONT_POOL[0];
     this.fontMorphProgress = 1;
@@ -77,15 +80,17 @@ export class TitleStateManager {
 
       if (remainingIntensities === 0 && this.fontMorphProgress >= 1) {
         this.isResetting = false;
-        this.isFrozen = true;
         this.hasStarted = false;
+        // Give it a fresh 30s calm period (from *now*, not from frame 0)
+        // before random effects are allowed to start again.
+        this.nextEvalFrame = frame + this.INITIAL_DELAY_FRAMES;
       }
       return;
     }
 
     if (this.isFrozen) return;
 
-    if (!this.hasStarted && frame >= this.INITIAL_DELAY_FRAMES) {
+    if (!this.hasStarted && frame >= this.nextEvalFrame) {
       this.hasStarted = true;
       this.evaluateCategories(frame);
     }
@@ -125,7 +130,7 @@ export class TitleStateManager {
   public static handleDoubleClick(currentFrame: number): void {
     this.targetFeatures.clear();
     this.isResetting = true;
-    this.isFrozen = true;
+    this.isFrozen = false; // keep the base brand gradient animating through the reset
     this.hasStarted = false;
 
     ColorShiftManager.setTargets([DEFAULT_GRAY, DEFAULT_GRAY, DEFAULT_GRAY], 'horizontal');
@@ -155,7 +160,7 @@ export class TitleStateManager {
       if (frame - state.lastChangedFrame >= state.durationFrames) {
         state.lastChangedFrame = frame;
         state.durationFrames = this.getRandomDuration(cat);
-        
+
         const available = TitleFeaturesRegistry.getByCategory(cat);
         const shouldApply = Math.random() > 0.2;
 
