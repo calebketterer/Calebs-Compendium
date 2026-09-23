@@ -11,12 +11,11 @@ export class TitleStateManager {
   public static activeFeatures: Map<string, number> = new Map();
   public static targetFeatures: Set<string> = new Set();
 
-  private static readonly INITIAL_DELAY_FRAMES = 30 * 60; // 30 seconds at 60fps
   public static isFrozen = false;
   public static isResetting = false;
+  // true only while random effects (font/motion/color/stroke) are active.
+  // Only handleSingleClick can set this true - there is no automatic timer.
   public static hasStarted = false;
-
-  private static nextEvalFrame = TitleStateManager.INITIAL_DELAY_FRAMES;
 
   private static categoryStates: Map<FeatureCategory, CategoryState> = new Map([
     ['font', { activeEffectIds: [], durationFrames: 0, lastChangedFrame: 0 }],
@@ -36,7 +35,6 @@ export class TitleStateManager {
     this.isFrozen = false;
     this.isResetting = false;
     this.hasStarted = false;
-    this.nextEvalFrame = this.INITIAL_DELAY_FRAMES;
     this.currentFont = FONT_POOL[0];
     this.previousFont = FONT_POOL[0];
     this.fontMorphProgress = 1;
@@ -80,21 +78,17 @@ export class TitleStateManager {
 
       if (remainingIntensities === 0 && this.fontMorphProgress >= 1) {
         this.isResetting = false;
+        // Stays here - no timer re-arms it. Only a single click resumes
+        // random effects (see handleSingleClick).
         this.hasStarted = false;
-        // Give it a fresh 30s calm period (from *now*, not from frame 0)
-        // before random effects are allowed to start again.
-        this.nextEvalFrame = frame + this.INITIAL_DELAY_FRAMES;
       }
       return;
     }
 
     if (this.isFrozen) return;
 
-    if (!this.hasStarted && frame >= this.nextEvalFrame) {
-      this.hasStarted = true;
-      this.evaluateCategories(frame);
-    }
-
+    // No automatic start: evaluateCategories only ever runs here while
+    // hasStarted is already true, which only handleSingleClick can set.
     if (this.hasStarted) {
       this.evaluateCategories(frame);
     }
@@ -130,7 +124,9 @@ export class TitleStateManager {
   public static handleDoubleClick(currentFrame: number): void {
     this.targetFeatures.clear();
     this.isResetting = true;
-    this.isFrozen = false; // keep the base brand gradient animating through the reset
+    // Keep the base gradient animating through the reset and afterward -
+    // only random effects turn off, not the underlying color/time sync.
+    this.isFrozen = false;
     this.hasStarted = false;
 
     ColorShiftManager.setTargets([DEFAULT_GRAY, DEFAULT_GRAY, DEFAULT_GRAY], 'horizontal');
@@ -194,6 +190,9 @@ export class TitleStateManager {
 
     if (stateChanged) {
       this.targetFeatures.clear();
+      this.categoryStates.forEach(state => {
+        state.activeEffectIds.forEach(id => state.activeEffectIds.forEach(() => {}));
+      });
       this.categoryStates.forEach(state => {
         state.activeEffectIds.forEach(id => this.targetFeatures.add(id));
       });

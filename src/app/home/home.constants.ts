@@ -23,11 +23,9 @@ export const COLOR_POOL: string[] = [
 
 export const TIPS_LIST: string[] = [
   "Every object on this page is clickable! Give it a try.",
-  "Try clicking the header to randomize the site colors!",
+  "Clicking the title enables random animation effects!",
   "The Diep component is my personal favorite.",
-  "The gradient follows your mouse—try moving it side to side.",
   "Explore the dropdown menu to jump into different mini-games!",
-  "Double-click the 'Tips' line to see more secrets!",
   "Access songs I wrote and produced on my Google Site.",
   "Read my compendium of short stories on the Google Docs."
 ];
